@@ -1,19 +1,22 @@
 import java.io.IOException;
 
+// 実行ファイルのパス
 final String[] EXEC_PATHS = {
   dataPath("games/pacman_x64/pacman_game.exe"),
   dataPath("games/pacman_x64/pacman_game.exe"),
   dataPath("games/pacman_x64/pacman_game.exe")
 };
 
-Runtime runtime = Runtime.getRuntime();
-int select = 0;
-int prevSelect = select;
-boolean selectChange = false;
-Timer timer = new Timer(30);
+Runtime runtime = Runtime.getRuntime(); // 実行するやつ
 
-int curMovie = select;
-Demo[] movies;
+int select = 0;                    // 選択しているゲーム
+int prevSelect = select;           // 前フレームの選択
+boolean selectChange = false;      // 選択を切り替えたか
+Timer selectTimer = new Timer(30); // 選択してからのタイマー
+
+Demo[] movies;                     // 映像
+int curMovie = select;             // 再生している映像
+Timer movieTimer = new Timer(300); // ループ用タイマー
 
 void setup() {
   // 画面設定
@@ -29,7 +32,7 @@ void setup() {
   movies = new Demo[3];
   movies[0] = new Pacman();
   movies[1] = new Pacman();
-  movies[2] = new Pacman(); //<>//
+  movies[2] = new Pacman(); //<>// //<>//
 }
 
 void draw() {
@@ -56,20 +59,23 @@ void draw() {
   if (select != prevSelect) {
     selectChange = true;
     prevSelect = select;
-    timer.reset();
+    selectTimer.reset();
   }
 
   // 動画再生
   if (selectChange) {
-    if (timer.update()) {
+    if (selectTimer.update()) {
       for (Demo movie : movies)
         movie.reset();
 
       curMovie = select;
+      movieTimer.reset();
       selectChange = false;
     }
   }
 
+  if (movieTimer.update())
+    movies[curMovie].reset();
   movies[curMovie].draw();
 
   fill(0, 0, 0);
