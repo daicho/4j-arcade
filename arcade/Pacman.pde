@@ -56,8 +56,6 @@ public class Pacman implements Demo {
       foods.add(new PacmanItem(foodPosition, "food"));
     for (PVector powerFoodPosition : powerFoodPositions)
       foods.add(new PacmanItem(powerFoodPosition, "power_food"));
-
-    this.draw();
   }
 
   // ステージ内の状態を更新
@@ -186,7 +184,8 @@ public class PacmanMap {
 
   // 画面描画
   public void draw() {
-    image(image, 0, 0);
+    imageMode(CENTER);
+    image(image, width / 2, height / 2);
   }
 }
 
@@ -260,8 +259,8 @@ public class PacmanItem extends PacmanGameObject {
 
   // 画面描画
   public void draw() {
-    PVector minPostision = getMinPosition();
-    image(animation.getImage(), minPostision.x, minPostision.y);
+    imageMode(CENTER);
+    image(animation.getImage(), position.x, position.y);
   }
 }
 
@@ -463,8 +462,8 @@ public abstract class PacmanCharacter extends PacmanGameObject {
 
   // 画面描画
   public void draw() {
-    PVector minPostision = getMinPosition();
-    image(animations[direction].getImage(), minPostision.x, minPostision.y);
+    imageMode(CENTER);
+    image(animations[direction].getImage(), position.x, position.y);
   }
 }
 

@@ -1,65 +1,97 @@
-import java.io.IOException;
+import java.io.IOException; //<>//
 
-// 実行ファイルのパス
-final String[] EXEC_PATHS = {
-  dataPath("games/pacman_x64/pacman_game.exe"),
-  dataPath("games/pacman_x64/pacman_game.exe"),
-  dataPath("games/pacman_x64/pacman_game.exe")
-};
-
+String[] exec_path = new String[3];     // 実行ファイルパス
 Runtime runtime = Runtime.getRuntime(); // 実行するやつ
 
-int select = 0;                    // 選択しているゲーム
-int prevSelect = select;           // 前フレームの選択
+int select = -1;                   // 選択しているゲーム
 boolean selectChange = false;      // 選択を切り替えたか
-Timer selectTimer = new Timer(30); // 選択してからのタイマー
+Timer selectTimer = new Timer(60); // 選択してからのタイマー
 
 Demo[] movies;                     // 映像
-int curMovie = select;             // 再生している映像
-Timer movieTimer = new Timer(300); // ループ用タイマー
+boolean playMovie = false;         // 再生中か
+Timer movieTimer = new Timer(300); // 映像用タイマー
+
+boolean reset = false; // リセットするか
+Timer resetTimer = new Timer(150); // リセット用タイマー
+
+PImage back;   // 背景
+PImage frame;  // フレーム
+PImage tetris; // テトリスの文字
+PImage pacman; // パックマンの文字
+PImage unagi;  // ウナギの文字
 
 void setup() {
   // 画面設定
   //fullScreen(); // フルスクリーン
   size(480, 848); // ウィンドウ
   frameRate(30);  // フレームレート
+  noCursor();     // マウスカーソル非表示
 
   // 入力設定
   //Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
   Input.setInputInterface(new KeyboardInput()); // キーボード
-  
+
+  // 実行ファイルパス
+  exec_path[0] = dataPath("games/pacman_x64/pacman_game.exe");
+  exec_path[1] = dataPath("games/pacman_x64/pacman_game.exe");
+  exec_path[2] = dataPath("games/pacman_x64/pacman_game.exe");
+
   // デモ
   movies = new Demo[3];
   movies[0] = new Pacman();
   movies[1] = new Pacman();
-  movies[2] = new Pacman(); //<>// //<>//
+  movies[2] = new Pacman();
+
+  // 画像
+  back = loadImage("select/back.png");
+  frame = loadImage("select/frame.png");
+  tetris = loadImage("select/tetris.png");
+  pacman = loadImage("select/pacman.png");
+  unagi = loadImage("select/unagi.png");
 }
 
 void draw() {
-  textAlign(LEFT, CENTER);
-  rectMode(CENTER);
-
   // ゲーム実行
-  if (Input.buttonAPress()) {
+  if (Input.buttonAPress() && select != -1) {
     try {
-      File file = new File(EXEC_PATHS[select]);
-      runtime.exec(EXEC_PATHS[select], null, new File(file.getParent()));
+      File file = new File(exec_path[select]);
+      runtime.exec(exec_path[select], null, new File(file.getParent()));
     } catch (IOException ex) {
       ex.printStackTrace();
     }
+
+    reset = true;
+    resetTimer.reset();
+  }
+
+  if (reset && resetTimer.update()) {
+    reset = false;
+    select = -1;
+    selectChange = false;
+    playMovie = false;
   }
 
   // ゲーム選択
-  if (Input.upPress())
-    select = constrain(select - 1, 0, EXEC_PATHS.length - 1);
-
-  if (Input.downPress())
-    select = constrain(select + 1, 0, EXEC_PATHS.length - 1);
-
-  if (select != prevSelect) {
+  if (Input.upPress()) {
     selectChange = true;
-    prevSelect = select;
+    playMovie = false;
     selectTimer.reset();
+
+    if (select == -1)
+      select = 2;
+    else
+      select = (select + 2) % 3;
+  }
+
+  if (Input.downPress()) {
+    selectChange = true;
+    playMovie = false;
+    selectTimer.reset();
+
+    if (select == -1)
+      select = 0;
+    else
+      select = (select + 4) % 3;
   }
 
   // 動画再生
@@ -68,21 +100,64 @@ void draw() {
       for (Demo movie : movies)
         movie.reset();
 
-      curMovie = select;
       movieTimer.reset();
       selectChange = false;
+      playMovie = true;
     }
   }
 
-  if (movieTimer.update())
-    movies[curMovie].reset();
-  movies[curMovie].draw();
+  // 描画
+  if (playMovie) {
+    movies[select].draw();
+    if (movieTimer.update())
+      playMovie = false;
+  } else {
+    imageMode(CENTER);
+    image(back, width / 2, height / 2);
+  }
 
-  fill(0, 0, 0);
-  rect(width / 2, height / 2, 150, 100);
-  fill(255, 255, 255);
-  text("→", width / 2 - 30, height / 2 + (select - 1) * 30);
-  text("テトリス", width / 2, height / 2 - 30);
-  text("パックマン", width / 2, height / 2);
-  text("スネーク", width / 2, height / 2 + 30);
+  image(frame, width / 2, height / 2); // フレーム
+
+  // テトリス
+  if (select == 0)
+    fill(195, 13, 35);
+  else if (playMovie)
+    fill(62, 58, 57);
+  else
+    fill(255, 255, 255);
+  oval(width / 2, 202, tetris.width, 40);
+
+  // パックマン
+  if (select == 1)
+    fill(195, 13, 35);
+  else if (playMovie)
+    fill(62, 58, 57);
+  else
+    fill(255, 255, 255);
+  oval(width / 2, 454, pacman.width, 40);
+
+  // ウナギ
+  if (select == 2)
+    fill(195, 13, 35);
+  else if (playMovie)
+    fill(62, 58, 57);
+  else
+    fill(255, 255, 255);
+  oval(width / 2, 706, unagi.width, 40);
+
+  image(tetris, width / 2, 202);
+  image(pacman, width / 2, 454);
+  image(unagi, width / 2, 706);
+  image(frame, width / 2, height / 2);
+}
+
+// 楕円を描画
+void oval(float x, float y, float w, float h) {
+  rectMode(CENTER);
+  ellipseMode(CENTER);
+  noStroke();
+
+  rect(x, y, w, h);
+  ellipse(x - w / 2, y, h, h);
+  ellipse(x + w / 2, y, h, h);
 }
