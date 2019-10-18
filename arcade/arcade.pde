@@ -5,13 +5,13 @@ Runtime runtime = Runtime.getRuntime(); // 実行するやつ
 
 int select = -1;                   // 選択しているゲーム
 boolean selectChange = false;      // 選択を切り替えたか
-Timer selectTimer = new Timer(60); // 選択してからのタイマー
+Timer selectTimer = new Timer(30); // 選択してからのタイマー
 
-Demo[] movies;                     // 映像
+Demo[] movies = new Demo[3];       // 映像
 boolean playMovie = false;         // 再生中か
 Timer movieTimer = new Timer(300); // 映像用タイマー
 
-boolean reset = false; // リセットするか
+boolean reset = false;             // リセットするか
 Timer resetTimer = new Timer(150); // リセット用タイマー
 
 PImage back;   // 背景
@@ -37,7 +37,6 @@ void setup() {
   exec_path[2] = dataPath("games/pacman_x64/pacman_game.exe");
 
   // デモ
-  movies = new Demo[3];
   movies[0] = new Pacman();
   movies[1] = new Pacman();
   movies[2] = new Pacman();
