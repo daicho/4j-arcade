@@ -106,12 +106,17 @@ void draw() {
   }
 
   // 描画
+  imageMode(CENTER);
+  rectMode(CENTER);
+
   if (playMovie) {
     movies[select].draw();
+    fill(0, 0, 0, 30);
+    rect(width / 2, height / 2, width, height);
+
     if (movieTimer.update())
       playMovie = false;
   } else {
-    imageMode(CENTER);
     image(back, width / 2, height / 2);
   }
 
