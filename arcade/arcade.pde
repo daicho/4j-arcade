@@ -51,7 +51,7 @@ void setup() {
 
 void draw() {
   // ゲーム実行
-  if (Input.buttonAPress() && select != -1) {
+  if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
     try {
       File file = new File(exec_path[select]);
       runtime.exec(exec_path[select], null, new File(file.getParent()));
