@@ -63,11 +63,16 @@ void draw() {
     resetTimer.reset();
   }
 
-  if (reset && resetTimer.update()) {
-    reset = false;
-    select = -1;
-    selectChange = false;
-    playMovie = false;
+  // リセット
+  if (reset) {
+    if (resetTimer.update()) {
+      reset = false;
+      select = -1;
+      selectChange = false;
+      playMovie = false;
+    }
+
+    return;
   }
 
   // ゲーム選択
