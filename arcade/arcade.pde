@@ -4,7 +4,7 @@ import processing.io.*;
 // 画面遷移
 enum Scene {
   Insert, // コイン投入
-  Zoom,   // ズームイン
+  Zoom, // ズームイン
   Select  // ゲーム選択
 }
 
@@ -89,22 +89,22 @@ void draw() {
     image(coinStr, width / 2, 518);
     fill(0, 0, 0);
     stroke(0, 0, 0);
-    slot(width / 2, 424, 18, 148);
+    slot(width / 2, 424, 17, 147);
   } else {
     // ゲーム選択画面
     if (playMovie) {
       movies[select].draw();
       fill(0, 0, 0, 30);
       rect(width / 2, height / 2, width, height);
-  
+
       if (movieTimer.update())
         playMovie = false;
     } else {
       image(selectBack, width / 2, height / 2);
     }
-  
+
     image(frame, width / 2, height / 2); // フレーム
-  
+
     // テトリス
     if (select == 0)
       fill(195, 13, 35);
@@ -113,7 +113,7 @@ void draw() {
     else
       fill(255, 255, 255);
     oval(width / 2, 202, tetris.width, 40);
-  
+
     // パックマン
     if (select == 1)
       fill(195, 13, 35);
@@ -122,7 +122,7 @@ void draw() {
     else
       fill(255, 255, 255);
     oval(width / 2, 454, pacman.width, 40);
-  
+
     // ウナギ
     if (select == 2)
       fill(195, 13, 35);
@@ -131,7 +131,7 @@ void draw() {
     else
       fill(255, 255, 255);
     oval(width / 2, 706, unagi.width, 40);
-  
+
     image(tetris, width / 2, 202);
     image(pacman, width / 2, 454);
     image(unagi, width / 2, 706);
@@ -140,11 +140,11 @@ void draw() {
     // ズームイン
     if (scene == Scene.Zoom) {
       PImage slotBack = coinBack.copy();
-      slotBack.mask(slotMask(width / 2, 424, lerp(18, 600, amt), lerp(148, 3000, amt)));
+      slotBack.mask(slotMask(width / 2, 424, lerp(17, 600, amt), lerp(147, 3000, amt)));
       image(slotBack, width / 2, height / 2);
       fill(0, 0, 0, lerp(255, 0, amt));
       stroke(0, 0, 0);
-      slot(width / 2, 424, lerp(18, 600, amt), lerp(148, 3000, amt));
+      slot(width / 2, 424, lerp(17, 650, amt), lerp(147, 3000, amt));
 
       if (zoomTimer.update()) {
         amt += amt / 30 + 0.002;
@@ -163,14 +163,15 @@ void draw() {
         try {
           File file = new File(exec_path[select]);
           runtime.exec(exec_path[select], null, new File(file.getParent()));
-        } catch (IOException ex) {
+        } 
+        catch (IOException ex) {
           ex.printStackTrace();
         }
-    
+
         reset = true;
         resetTimer.reset();
       }
-    
+
       // リセット
       if (reset) {
         if (resetTimer.update()) {
@@ -180,39 +181,39 @@ void draw() {
           selectChange = false;
           playMovie = false;
         }
-    
+
         return;
       }
-    
+
       // ゲーム選択
       if (Input.upPress()) {
         selectChange = true;
         playMovie = false;
         selectTimer.reset();
-    
+
         if (select == -1)
           select = 2;
         else
           select = (select + 2) % 3;
       }
-    
+
       if (Input.downPress()) {
         selectChange = true;
         playMovie = false;
         selectTimer.reset();
-    
+
         if (select == -1)
           select = 0;
         else
           select = (select + 4) % 3;
       }
-    
+
       // 動画再生
       if (selectChange) {
         if (selectTimer.update()) {
           for (Demo movie : movies)
             movie.reset();
-    
+
           movieTimer.reset();
           selectChange = false;
           playMovie = true;
@@ -242,7 +243,7 @@ void oval(float x, float y, float w, float h) {
 // コイン投入口を描画
 void slot(float x, float y, float w, float h) {
   rectMode(CENTER);
-  strokeWeight((w + h) * 0.02);
+  strokeWeight((w + h) * 0.035);
   rect(x, y, w, h, (w + h) * 0.03);
 }
 
