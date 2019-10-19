@@ -239,41 +239,21 @@ void oval(float x, float y, float w, float h) {
 
 // コイン投入口を描画
 void slot(float x, float y, float w, float h) {
-  float r = (w + h) * 0.05; // エッジの大きさ
-
   rectMode(CENTER);
-  ellipseMode(CENTER);
   noStroke();
-
-  rect(x, y, w, h - r);
-  rect(x, y - h / 2 + r / 4, w - r, r / 2);
-  rect(x, y + h / 2 - r / 4, w - r, r / 2);
-  arc(x - w / 2 + r / 2, y - h / 2 + r / 2, r, r, PI, PI + HALF_PI);
-  arc(x + w / 2 - r / 2, y - h / 2 + r / 2, r, r, PI + HALF_PI, TWO_PI);
-  arc(x - w / 2 + r / 2, y + h / 2 - r / 2, r, r, HALF_PI, PI);
-  arc(x + w / 2 - r / 2, y + h / 2 - r / 2, r, r, 0, HALF_PI);
+  rect(x, y, w, h, (w + h) * 0.03);
 }
 
 // マスク用コイン投入口を作成
 int[] slotMask(float x, float y, float w, float h) {
-  float r = (w + h) * 0.05; // エッジの大きさ
-
   PGraphics graphics = createGraphics(width, height);
   graphics.beginDraw();
 
   graphics.rectMode(CENTER);
-  graphics.ellipseMode(CENTER);
   graphics.noStroke();
   graphics.fill(0);
-
   graphics.background(255);
-  graphics.rect(x, y, w, h - r);
-  graphics.rect(x, y - h / 2 + r / 4, w - r, r / 2);
-  graphics.rect(x, y + h / 2 - r / 4, w - r, r / 2);
-  graphics.arc(x - w / 2 + r / 2, y - h / 2 + r / 2, r, r, PI, PI + HALF_PI);
-  graphics.arc(x + w / 2 - r / 2, y - h / 2 + r / 2, r, r, PI + HALF_PI, TWO_PI);
-  graphics.arc(x - w / 2 + r / 2, y + h / 2 - r / 2, r, r, HALF_PI, PI);
-  graphics.arc(x + w / 2 - r / 2, y + h / 2 - r / 2, r, r, 0, HALF_PI);
+  graphics.rect(x, y, w, h, (w + h) * 0.03);
 
   graphics.endDraw();
   return graphics.pixels;
