@@ -1,11 +1,19 @@
 // タイマー
 public class Timer {
-  protected int time; // 設定時間
-  protected int left; // 残り時間
+  protected int time;     // 設定時間
+  protected int left;     // 残り時間
+  protected boolean loop; // タイマーを繰り返すか
 
   public Timer(int time) {
     this.time = time;
     this.left = time;
+    this.loop = true;
+  }
+
+  public Timer(int time, boolean loop) {
+    this.time = time;
+    this.left = time;
+    this.loop = loop;
   }
 
   public int getTime() {
@@ -23,11 +31,11 @@ public class Timer {
 
   // 設定時間が経過したらtrueを返す
   public boolean update() {
-    left--;
-    if (left < 0) {
-      left = time;
+    if (left <= 0) {
+      if (loop) left = time;
       return true;
     } else {
+      left--;
       return false;
     }
   }

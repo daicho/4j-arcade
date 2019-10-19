@@ -1,5 +1,24 @@
 import java.io.IOException; //<>//
+import processing.io.*;
 
+// 画面遷移
+enum Scene {
+  Insert, // コイン投入
+  Zoom,   // ズームイン
+  Select  // ゲーム選択
+}
+
+Scene scene = Scene.Insert; // 現在のシーン
+
+// コイン投入画面
+final int PHOTO = 25; // フォトインタラプタのピン番号
+
+PImage coinBack; // 背景
+PImage coinStr;  // INSERT COINの文字
+float amt = 0;   // アニメーションの進行
+Timer zoomTimer = new Timer(30, false); // ズームするまでのタイマー
+
+// ゲーム選択画面
 String[] exec_path = new String[3];     // 実行ファイルパス
 Runtime runtime = Runtime.getRuntime(); // 実行するやつ
 
@@ -14,11 +33,11 @@ Timer movieTimer = new Timer(300); // 映像用タイマー
 boolean reset = false;             // リセットするか
 Timer resetTimer = new Timer(150); // リセット用タイマー
 
-PImage back;   // 背景
-PImage frame;  // フレーム
-PImage tetris; // テトリスの文字
-PImage pacman; // パックマンの文字
-PImage unagi;  // ウナギの文字
+PImage selectBack; // 背景
+PImage frame;      // フレーム
+PImage tetris;     // テトリスの文字
+PImage pacman;     // パックマンの文字
+PImage unagi;      // ウナギの文字
 
 void setup() {
   // 画面設定
@@ -31,6 +50,10 @@ void setup() {
   //Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
   Input.setInputInterface(new KeyboardInput()); // キーボード
 
+  // コイン投入検知
+  //GPIO.pinMode(PHOTO, GPIO.INPUT);
+  //GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
+
   // 実行ファイルパス
   exec_path[0] = dataPath("games/pacman_x64/pacman_game.exe");
   exec_path[1] = dataPath("games/pacman_x64/pacman_game.exe");
@@ -42,7 +65,10 @@ void setup() {
   movies[2] = new Pacman();
 
   // 画像
-  back = loadImage("select/back.png");
+  coinBack = loadImage("coin/back.png");
+  coinStr = loadImage("coin/str.png");
+
+  selectBack = loadImage("select/back.png");
   frame = loadImage("select/frame.png");
   tetris = loadImage("select/tetris.png");
   pacman = loadImage("select/pacman.png");
@@ -50,114 +76,154 @@ void setup() {
 }
 
 void draw() {
-  // ゲーム実行
-  if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
-    try {
-      File file = new File(exec_path[select]);
-      runtime.exec(exec_path[select], null, new File(file.getParent()));
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-
-    reset = true;
-    resetTimer.reset();
-  }
-
-  // リセット
-  if (reset) {
-    if (resetTimer.update()) {
-      reset = false;
-      select = -1;
-      selectChange = false;
-      playMovie = false;
-    }
-
-    return;
-  }
-
-  // ゲーム選択
-  if (Input.upPress()) {
-    selectChange = true;
-    playMovie = false;
-    selectTimer.reset();
-
-    if (select == -1)
-      select = 2;
-    else
-      select = (select + 2) % 3;
-  }
-
-  if (Input.downPress()) {
-    selectChange = true;
-    playMovie = false;
-    selectTimer.reset();
-
-    if (select == -1)
-      select = 0;
-    else
-      select = (select + 4) % 3;
-  }
-
-  // 動画再生
-  if (selectChange) {
-    if (selectTimer.update()) {
-      for (Demo movie : movies)
-        movie.reset();
-
-      movieTimer.reset();
-      selectChange = false;
-      playMovie = true;
-    }
-  }
-
-  // 描画
   imageMode(CENTER);
   rectMode(CENTER);
 
-  if (playMovie) {
-    movies[select].draw();
-    fill(0, 0, 0, 30);
-    rect(width / 2, height / 2, width, height);
+  // デバッグ用
+  if (keyPressed && key == ' ' && scene == Scene.Insert)
+    scene = Scene.Zoom;
 
-    if (movieTimer.update())
-      playMovie = false;
+  if (scene == Scene.Insert) {
+    // コイン投入画面
+    image(coinBack, width / 2, height / 2);
+    image(coinStr, width / 2, 518);
+    fill(0, 0, 0);
+    slot(width / 2, 424, 20, 150);
   } else {
-    image(back, width / 2, height / 2);
+    // ゲーム選択画面
+    if (playMovie) {
+      movies[select].draw();
+      fill(0, 0, 0, 30);
+      rect(width / 2, height / 2, width, height);
+  
+      if (movieTimer.update())
+        playMovie = false;
+    } else {
+      image(selectBack, width / 2, height / 2);
+    }
+  
+    image(frame, width / 2, height / 2); // フレーム
+  
+    // テトリス
+    if (select == 0)
+      fill(195, 13, 35);
+    else if (playMovie)
+      fill(62, 58, 57);
+    else
+      fill(255, 255, 255);
+    oval(width / 2, 202, tetris.width, 40);
+  
+    // パックマン
+    if (select == 1)
+      fill(195, 13, 35);
+    else if (playMovie)
+      fill(62, 58, 57);
+    else
+      fill(255, 255, 255);
+    oval(width / 2, 454, pacman.width, 40);
+  
+    // ウナギ
+    if (select == 2)
+      fill(195, 13, 35);
+    else if (playMovie)
+      fill(62, 58, 57);
+    else
+      fill(255, 255, 255);
+    oval(width / 2, 706, unagi.width, 40);
+  
+    image(tetris, width / 2, 202);
+    image(pacman, width / 2, 454);
+    image(unagi, width / 2, 706);
+    image(frame, width / 2, height / 2);
+
+    // ズームイン
+    if (scene == Scene.Zoom) {
+      PImage slotBack = coinBack.copy();
+      slotBack.mask(slotMask(width / 2, 424, lerp(20, 480, amt), lerp(150, 2000, amt)));
+      image(slotBack, width / 2, height / 2);
+      fill(0, 0, 0, lerp(255, 0, amt));
+      slot(width / 2, 424, lerp(20, 480, amt), lerp(150, 2000, amt));
+
+      if (zoomTimer.update()) {
+        amt += amt / 30 + 0.002;
+        if (amt > 1) {
+          amt = 0;
+          zoomTimer.reset();
+          scene = Scene.Select;
+        }
+      }
+    }
+
+    // 入力受付
+    if (scene == Scene.Select) {
+      // ゲーム実行
+      if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
+        try {
+          File file = new File(exec_path[select]);
+          runtime.exec(exec_path[select], null, new File(file.getParent()));
+        } catch (IOException ex) {
+          ex.printStackTrace();
+        }
+    
+        reset = true;
+        resetTimer.reset();
+      }
+    
+      // リセット
+      if (reset) {
+        if (resetTimer.update()) {
+          reset = false;
+          scene = Scene.Insert;
+          select = -1;
+          selectChange = false;
+          playMovie = false;
+        }
+    
+        return;
+      }
+    
+      // ゲーム選択
+      if (Input.upPress()) {
+        selectChange = true;
+        playMovie = false;
+        selectTimer.reset();
+    
+        if (select == -1)
+          select = 2;
+        else
+          select = (select + 2) % 3;
+      }
+    
+      if (Input.downPress()) {
+        selectChange = true;
+        playMovie = false;
+        selectTimer.reset();
+    
+        if (select == -1)
+          select = 0;
+        else
+          select = (select + 4) % 3;
+      }
+    
+      // 動画再生
+      if (selectChange) {
+        if (selectTimer.update()) {
+          for (Demo movie : movies)
+            movie.reset();
+    
+          movieTimer.reset();
+          selectChange = false;
+          playMovie = true;
+        }
+      }
+    }
   }
+}
 
-  image(frame, width / 2, height / 2); // フレーム
-
-  // テトリス
-  if (select == 0)
-    fill(195, 13, 35);
-  else if (playMovie)
-    fill(62, 58, 57);
-  else
-    fill(255, 255, 255);
-  oval(width / 2, 202, tetris.width, 40);
-
-  // パックマン
-  if (select == 1)
-    fill(195, 13, 35);
-  else if (playMovie)
-    fill(62, 58, 57);
-  else
-    fill(255, 255, 255);
-  oval(width / 2, 454, pacman.width, 40);
-
-  // ウナギ
-  if (select == 2)
-    fill(195, 13, 35);
-  else if (playMovie)
-    fill(62, 58, 57);
-  else
-    fill(255, 255, 255);
-  oval(width / 2, 706, unagi.width, 40);
-
-  image(tetris, width / 2, 202);
-  image(pacman, width / 2, 454);
-  image(unagi, width / 2, 706);
-  image(frame, width / 2, height / 2);
+// コイン投入
+void throwCoin(int pin) {
+  if (scene == Scene.Insert)
+    scene = Scene.Zoom;
 }
 
 // 楕円を描画
@@ -169,4 +235,46 @@ void oval(float x, float y, float w, float h) {
   rect(x, y, w, h);
   ellipse(x - w / 2, y, h, h);
   ellipse(x + w / 2, y, h, h);
+}
+
+// コイン投入口を描画
+void slot(float x, float y, float w, float h) {
+  float r = (w + h) * 0.05; // エッジの大きさ
+
+  rectMode(CENTER);
+  ellipseMode(CENTER);
+  noStroke();
+
+  rect(x, y, w, h - r);
+  rect(x, y - h / 2 + r / 4, w - r, r / 2);
+  rect(x, y + h / 2 - r / 4, w - r, r / 2);
+  arc(x - w / 2 + r / 2, y - h / 2 + r / 2, r, r, PI, PI + HALF_PI);
+  arc(x + w / 2 - r / 2, y - h / 2 + r / 2, r, r, PI + HALF_PI, TWO_PI);
+  arc(x - w / 2 + r / 2, y + h / 2 - r / 2, r, r, HALF_PI, PI);
+  arc(x + w / 2 - r / 2, y + h / 2 - r / 2, r, r, 0, HALF_PI);
+}
+
+// マスク用コイン投入口を作成
+int[] slotMask(float x, float y, float w, float h) {
+  float r = (w + h) * 0.05; // エッジの大きさ
+
+  PGraphics graphics = createGraphics(width, height);
+  graphics.beginDraw();
+
+  graphics.rectMode(CENTER);
+  graphics.ellipseMode(CENTER);
+  graphics.noStroke();
+  graphics.fill(0);
+
+  graphics.background(255);
+  graphics.rect(x, y, w, h - r);
+  graphics.rect(x, y - h / 2 + r / 4, w - r, r / 2);
+  graphics.rect(x, y + h / 2 - r / 4, w - r, r / 2);
+  graphics.arc(x - w / 2 + r / 2, y - h / 2 + r / 2, r, r, PI, PI + HALF_PI);
+  graphics.arc(x + w / 2 - r / 2, y - h / 2 + r / 2, r, r, PI + HALF_PI, TWO_PI);
+  graphics.arc(x - w / 2 + r / 2, y + h / 2 - r / 2, r, r, HALF_PI, PI);
+  graphics.arc(x + w / 2 - r / 2, y + h / 2 - r / 2, r, r, 0, HALF_PI);
+
+  graphics.endDraw();
+  return graphics.pixels;
 }
