@@ -88,7 +88,8 @@ void draw() {
     image(coinBack, width / 2, height / 2);
     image(coinStr, width / 2, 518);
     fill(0, 0, 0);
-    slot(width / 2, 424, 20, 150);
+    stroke(0, 0, 0);
+    slot(width / 2, 424, 18, 148);
   } else {
     // ゲーム選択画面
     if (playMovie) {
@@ -139,10 +140,11 @@ void draw() {
     // ズームイン
     if (scene == Scene.Zoom) {
       PImage slotBack = coinBack.copy();
-      slotBack.mask(slotMask(width / 2, 424, lerp(20, 480, amt), lerp(150, 2000, amt)));
+      slotBack.mask(slotMask(width / 2, 424, lerp(18, 600, amt), lerp(148, 3000, amt)));
       image(slotBack, width / 2, height / 2);
       fill(0, 0, 0, lerp(255, 0, amt));
-      slot(width / 2, 424, lerp(20, 480, amt), lerp(150, 2000, amt));
+      stroke(0, 0, 0);
+      slot(width / 2, 424, lerp(18, 600, amt), lerp(148, 3000, amt));
 
       if (zoomTimer.update()) {
         amt += amt / 30 + 0.002;
@@ -240,7 +242,7 @@ void oval(float x, float y, float w, float h) {
 // コイン投入口を描画
 void slot(float x, float y, float w, float h) {
   rectMode(CENTER);
-  noStroke();
+  strokeWeight((w + h) * 0.02);
   rect(x, y, w, h, (w + h) * 0.03);
 }
 
