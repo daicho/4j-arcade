@@ -1,22 +1,29 @@
 import java.io.IOException; //<>//
 import processing.io.*;
+import ddf.minim.*;
 
 // 画面遷移
 enum Scene {
   Insert, // コイン投入
-  Zoom, // ズームイン
+  Zoom,   // ズームイン
   Select  // ゲーム選択
 }
 
 Scene scene = Scene.Insert; // 現在のシーン
+Minim minim;
 
 // コイン投入画面
 final int PHOTO = 25; // フォトインタラプタのピン番号
 
+boolean zoom = false; // ズームしているか
+float amt = 0;        // アニメーションの進行
+Timer zoomTimer = new Timer(90); // ズームするまでのタイマー
+
 PImage coinBack; // 背景
 PImage coinStr;  // INSERT COINの文字
-float amt = 0;   // アニメーションの進行
-Timer zoomTimer = new Timer(30, false); // ズームするまでのタイマー
+
+AudioPlayer coinSE; // コイン投入音
+AudioPlayer zoomSE; // ズーム音
 
 // ゲーム選択画面
 String[] exec_path = new String[3];     // 実行ファイルパス
@@ -73,6 +80,11 @@ void setup() {
   tetris = loadImage("select/tetris.png");
   pacman = loadImage("select/pacman.png");
   unagi = loadImage("select/unagi.png");
+  
+  // 音声
+  minim = new Minim(this);
+  coinSE = minim.loadFile("coin/coin.mp3");
+  zoomSE = minim.loadFile("coin/zoom.mp3");
 }
 
 void draw() {
@@ -80,8 +92,10 @@ void draw() {
   rectMode(CENTER);
 
   // デバッグ用
-  if (keyPressed && key == ' ' && scene == Scene.Insert)
+  if (keyPressed && key == ' ' && scene == Scene.Insert) {
+    coinSE.play();
     scene = Scene.Zoom;
+  }
 
   if (scene == Scene.Insert) {
     // コイン投入画面
@@ -147,9 +161,15 @@ void draw() {
       slot(width / 2, 424, lerp(17, 650, amt), lerp(147, 3000, amt));
 
       if (zoomTimer.update()) {
-        amt += amt / 30 + 0.002;
+        zoomSE.play();
+        zoom = true;
+      }
+
+      if (zoom) {
+        amt += amt / 24 + 0.001;
         if (amt > 1) {
           amt = 0;
+          zoom = false;
           zoomTimer.reset();
           scene = Scene.Select;
         }
@@ -225,8 +245,10 @@ void draw() {
 
 // コイン投入
 void throwCoin(int pin) {
-  if (scene == Scene.Insert)
+  if (scene == Scene.Insert) {
+    coinSE.play();
     scene = Scene.Zoom;
+  }
 }
 
 // 楕円を描画
