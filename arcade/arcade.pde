@@ -108,6 +108,9 @@ void draw() {
     // ゲーム選択画面
     if (playMovie) {
       movies[select].draw();
+
+      imageMode(CENTER);
+      rectMode(CENTER);
       fill(0, 0, 0, 30);
       rect(width / 2, height / 2, width, height);
 

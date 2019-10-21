@@ -92,21 +92,14 @@ public class UNAGI implements Demo {
   
   @Override
   public void draw() {
+    sgame.render_init();
+    
     if (!draw) {
+      input.update();
+      sgame.update(input);
       draw = true;
       return;
     }
-    
-    if (init) {
-      sgame.render_init();
-      init = false;
-    }
-    else {
-      sgame.render();
-    }
-    
-    input.update();
-    sgame.update(input);
     
     draw = false;
   }
@@ -279,6 +272,10 @@ abstract class UNAGIScene {
   }
 
   public void render_init() {
+    rectMode(CORNER);
+    ellipseMode(CENTER);
+    imageMode(CORNER);
+
     for (UNAGISceneObject objects: objects) {
       objects.render_init();
     }
@@ -522,8 +519,17 @@ class SOUnagi extends UNAGISceneObject implements Iterable<UnagiUnit> {
   
   @Override
   public void RENDER_INIT() {
+    // ===== pass =====
+    if (pass != null) {
+      none(pass);
+      
+      if (animation < ANIMATION) {
+        sprite(PIC_PASS[DONTCARE][DONTCARE][pass.to], pass);
+      }
+    }
+    
     // ===== tail =====
-    sprite(PIC_TAIL[ANIMATION][tail.to][tail.to], tail);
+    sprite(PIC_TAIL[pass == null ? ANIMATION : animation][animation == ANIMATION ? tail.to : tail.from][tail.to], tail);
     
     // ===== body =====
     int i = 0;
@@ -542,10 +548,10 @@ class SOUnagi extends UNAGISceneObject implements Iterable<UnagiUnit> {
     }
     
     // ===== neck =====
-    sprite(PIC_NECK[ANIMATION][neck.from][neck.to], neck);
+    sprite(PIC_NECK[animation][neck.from][neck.to], neck);
     
     // ===== head =====
-    sprite(PIC_HEAD[ANIMATION][DONTCARE][head.to], head);
+    sprite(PIC_HEAD[animation][DONTCARE][head.to], head);
   }
   
   @Override
@@ -853,6 +859,10 @@ class SOStage extends UNAGISceneObject {
     image(loadImage("UNAGI/init/SOStage.png"), 0, 0);
     unagi.RENDER_INIT();
     sprite(PIC_FEED, feed);
+    
+    if (appear_hook) {
+      sprite(PIC_HOOK, hook);
+    }
   }
   
   @Override
