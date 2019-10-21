@@ -27,7 +27,7 @@ public class Pacman implements Demo {
 
         // パックマン
         if (pixel == color(255, 0, 0)) {
-          this.pacman = new PacmanPlayer(new PVector(x, y), 3, 3.4);
+          this.pacman = new PacmanPlayer(new PVector(x, y), 3, 3);
         }
 
         // 敵
