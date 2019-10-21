@@ -107,6 +107,9 @@ void draw() {
   } else {
     // ゲーム選択画面
     if (playMovie) {
+      rectMode(CORNER);
+      ellipseMode(CENTER);
+      imageMode(CORNER);
       movies[select].draw();
 
       imageMode(CENTER);

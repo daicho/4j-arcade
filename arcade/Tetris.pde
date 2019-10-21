@@ -12,6 +12,7 @@ class Tetris implements Demo {
   int delta_time;  // 前フレームからの経過時間を持つ 
 
   public void reset() {
+    strokeWeight(1);
     setupFonts();
     finishFlag = false;
     elapsedTimeMS = 0;
@@ -137,7 +138,6 @@ class DemoDisplay {
     if (mino.posy < mino.ghost_y) {
       fill(210, 100);
       noStroke();
-      //filter(BL
       rect(STAGEPOSITION_X + BLOCKSIZE * (x + mino.posx - 1), STAGEPOSITION_Y + BLOCKSIZE * (y + mino.ghost_y - arst_y), BLOCKSIZE, BLOCKSIZE);
     }
   }
@@ -163,7 +163,6 @@ class DemoDisplay {
             stroke(MINO_COLOR);
             fill(255, 100);
             rect(dispNextMino[next].nextBlockSize* j, dispNextMino[next].nextBlockSize * i, dispNextMino[next].nextBlockSize, dispNextMino[next].nextBlockSize, BLOCKRADIUS / collectRadius);
-            //image(minoTex[dispNextMino[next].id - 1], dispNextMino[next].nextBlockSize* j, dispNextMino[next].nextBlockSize * i, dispNextMino[next].nextBlockSize, dispNextMino[next].nextBlockSize);
           }
         }
       }
@@ -189,7 +188,6 @@ class DemoDisplay {
             stroke(MINO_COLOR);
             fill(255, 100);
             rect(holdMino.holdSize* j, holdMino.holdSize * i, holdMino.holdSize, holdMino.holdSize, BLOCKRADIUS);
-            //image(minoTex[minos[holdMino.id - 1].id - 1], holdMino.holdSize* j, holdMino.holdSize * i, holdMino.holdSize, holdMino.holdSize);
           }
         }
       }
@@ -1075,50 +1073,10 @@ class DemoStage {
 }
 public class Imageview {
 
-  private PImage images[];
   private boolean runSwitch;
-  private int scene ;
 
   Imageview() {
-    images = new PImage[5];
-    images[0] = loadImage("title_resources/0.png");
-    images[1] = loadImage("title_resources/1.png");
-    images[2] = loadImage("title_resources/2.png");
-    images[3] = loadImage("title_resources/3.png");
-    images[4] = loadImage("title_resources/4.png");
     runSwitch = false;
-    scene = 0;
-  }
-
-  public void goFrontPage() {
-    scene += 1;
-    if (scene >= images.length) scene = 0;
-  }
-
-  public void goBackPage() {
-    scene -= 1;
-    if (scene < 0) scene = 4;
-  }
-
-  public void HowToPlay() {
-    if (!runSwitch) return;
-    switch (scene) {
-    case 0: 
-      image(images[0], width/2, 424); 
-      break;
-    case 1: 
-      image(images[1], width/2, 424); 
-      break;
-    case 2: 
-      image(images[2], width/2, 424); 
-      break;
-    case 3: 
-      image(images[3], width/2, 424); 
-      break;
-    case 4: 
-      image(images[4], width/2, 424); 
-      break;
-    }
   }
 
   public void pushSwitch() {
