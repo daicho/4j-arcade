@@ -69,7 +69,7 @@ void setup() {
   // デモ
   movies[0] = new Pacman();
   movies[1] = new Pacman();
-  movies[2] = new Pacman();
+  movies[2] = new UNAGI();
 
   // 画像
   coinBack = loadImage("coin/back.png");

@@ -11,6 +11,8 @@ public class Pacman implements Demo {
   protected ArrayList<PVector> foodPositions = new ArrayList<PVector>();      // エサの座標
   protected ArrayList<PVector> powerFoodPositions = new ArrayList<PVector>(); // パワーエサの座標
 
+  protected PFont font;
+
   public Pacman() {
     this.map = new PacmanMap();
 
@@ -56,6 +58,8 @@ public class Pacman implements Demo {
       foods.add(new PacmanItem(foodPosition, "food"));
     for (PVector powerFoodPosition : powerFoodPositions)
       foods.add(new PacmanItem(powerFoodPosition, "power_food"));
+
+    font = createFont("pacman/NuKinakoMochi-Reg.otf", 10);
   }
 
   // ステージ内の状態を更新
@@ -116,6 +120,31 @@ public class Pacman implements Demo {
     for (PacmanCharacter monster : monsters)
       monster.draw();
     pacman.draw();
+
+    // スコア表示
+    textAlign(RIGHT, BASELINE);
+
+    textFont(font, 24);
+    fill(0, 0, 159);
+    text("SCORE", 100, 175);
+    text("HIGH SCORE", 465, 175);
+
+    textFont(font, 24);
+    fill(0, 0, 0);
+    text(6300, 100, 197);
+    text(23500, 465, 197);
+
+    // 残基表示
+    imageMode(CENTER);
+    for (int i = 0; i < 2; i++)
+      image(pacman.animations[3].images[0], i * 32 + 31, 738);
+
+    // 枠表示
+    rectMode(CENTER);
+    stroke(27, 20, 100);
+    strokeWeight(4);
+    noFill();
+    rect(width / 2, 455, 478, 630, 10);
   }
   
   // リセット
