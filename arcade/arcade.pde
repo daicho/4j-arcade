@@ -67,7 +67,7 @@ void setup() {
   exec_path[2] = dataPath("games/pacman_x64/pacman_game.exe");
 
   // デモ
-  movies[0] = new Pacman();
+  movies[0] = new Tetris();
   movies[1] = new Pacman();
   movies[2] = new UNAGI();
 
