@@ -11,40 +11,25 @@ public class Pacman implements Demo {
   protected ArrayList<PVector> foodPositions = new ArrayList<PVector>();      // エサの座標
   protected ArrayList<PVector> powerFoodPositions = new ArrayList<PVector>(); // パワーエサの座標
 
-  protected PFont font;
-
   public Pacman() {
     this.map = new PacmanMap();
 
-    // マップファイル読み込み
-    ArrayList<PVector> monsterPositions = new ArrayList<PVector>();
-    PImage mapImage = loadImage("pacman/map.png");
-    mapImage.loadPixels();
+    // ポジションファイル読み込み
+    Table postionsCsv = loadTable("pacman/positions.csv");
+    ArrayList<PVector> monsterPositions = new ArrayList<PVector>(); // 敵の座標
+    
+    for (int i = 0; i < postionsCsv.getRowCount(); i++) {
+      if ("p".equals(postionsCsv.getString(i, 0)))
+        this.pacman = new PacmanPlayer(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)), 4, 4);
 
-    for (int y = 0; y < mapImage.height; y++) {
-      for (int x = 0; x < mapImage.width; x++) {
-        color pixel = mapImage.pixels[y * mapImage.width + x];
+      if ("m".equals(postionsCsv.getString(i, 0)))
+        monsterPositions.add(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)));
 
-        // パックマン
-        if (pixel == color(255, 0, 0)) {
-          this.pacman = new PacmanPlayer(new PVector(x, y), 3, 3);
-        }
+      if ("f".equals(postionsCsv.getString(i, 0)))
+        foodPositions.add(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)));
 
-        // 敵
-        else if (pixel == color(0, 0, 255)) {
-          monsterPositions.add(new PVector(x, y));
-        }
-
-        // エサ
-        else if (pixel == color(255, 255, 0)) {
-          foodPositions.add(new PVector(x, y));
-        }
-
-        // パワーエサ
-        else if (pixel == color(0, 255, 255)) {
-          powerFoodPositions.add(new PVector(x, y));
-        }
-      }
+      if ("s".equals(postionsCsv.getString(i, 0)))
+        powerFoodPositions.add(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)));
     }
 
     // 敵
@@ -58,8 +43,6 @@ public class Pacman implements Demo {
       foods.add(new PacmanItem(foodPosition, "food"));
     for (PVector powerFoodPosition : powerFoodPositions)
       foods.add(new PacmanItem(powerFoodPosition, "power_food"));
-
-    font = createFont("pacman/NuKinakoMochi-Reg.otf", 10);
   }
 
   // ステージ内の状態を更新

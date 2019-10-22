@@ -68,7 +68,7 @@ void setup() {
   exec_commands[2] = "bash" + dataPath("games/unagi-armv6hf/UNAGI");
 
   // 実行時作業フォルダ
-  exec_dirs[0] = dataPath("games/pacman-armv6hf/");
+  exec_dirs[0] = dataPath("games/Main/");
   exec_dirs[1] = dataPath("games/pacman-armv6hf/");
   exec_dirs[2] = dataPath("games/unagi-armv6hf/");
 
@@ -89,7 +89,7 @@ void setup() {
 }
 
 void draw() {
-  println(frameRate);
+  //println(frameRate);
 
   // デバッグ用
   if (keyPressed && key == ' ' && scene == Scene.Insert) {
