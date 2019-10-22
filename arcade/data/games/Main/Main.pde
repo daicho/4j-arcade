@@ -3,8 +3,8 @@ Sound sound;
 static int[] result;
 
 public void setup() {
-  fullScreen();
-  //size(480, 848);
+  //fullScreen();
+  size(480, 848);
   setupFonts();
   sound = new Sound();
   nowScene = new TitleScene(sound);

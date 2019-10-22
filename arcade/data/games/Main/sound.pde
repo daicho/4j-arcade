@@ -32,13 +32,13 @@ public class Sound{
     end2 = 2;
 
     start_gameBGM = 0;
-    end_gameBGM = 170;
-    start_trBGM = 176;
+    end_gameBGM = 50;
+    start_trBGM = 50;
 
     bgm = minim.loadFile("sounds/bgm.mp3");
 
-    se2 = minim.loadFile("sounds/se.mp3");
     se1 = minim.loadFile("sounds/se.mp3");
+    //se2 = minim.loadFile("sounds/se.mp3");
   }
 
   /* BGMを再生する関数 */
@@ -59,7 +59,7 @@ public class Sound{
   
   public void stopAllSounds() {
     bgm.close();
-    se2.close();
+    //se2.close();
     se1.close();
   }
 
@@ -72,7 +72,7 @@ public class Sound{
   }
 
   public void stopCheck() {
-    if (se2.position() >= this.end2 * 2000 - 200) se2.pause();
+    //if (se2.position() >= this.end2 * 2000 - 200) se2.pause();
     if (se1.position() >= this.end1 * 2000 - 200) se1.pause();
   }
 
@@ -99,12 +99,12 @@ public class Sound{
       case "soft": start2 = 1; end2 = 2; break;
       case "drop": start1 = 0; end1 = 2; break;
     }
-
+    
     switch(soundName) {
-      case "soft":
+      /*case "soft":
         se2.cue(start2 * 2000);
         se2.play();
-        break;
+        break;*/
       case "drop":
       default :
         se1.cue(start1 * 2000);

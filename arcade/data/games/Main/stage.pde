@@ -1,4 +1,4 @@
-class Stage {         
+class Stage {          //<>//
 
   private int score;
 
@@ -108,6 +108,7 @@ class Stage {
     tSpinD = 0;
     tSpinT = 0;
     allClear = 0;
+    score = 0;
     
     stage = new int[][] { 
       {-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1}, 
@@ -520,7 +521,6 @@ class Stage {
       doneHold = false;
       lenCount = 0;
       lastline = 0;
-      score = 0;
     }
     return gameOverFlag;
   }
