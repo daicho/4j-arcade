@@ -49,18 +49,18 @@ PImage unagi;      // ウナギの文字
 
 void setup() {
   // 画面設定
-  //fullScreen(); // フルスクリーン
-  size(480, 848); // ウィンドウ
+  fullScreen(); // フルスクリーン
+  //size(480, 848); // ウィンドウ
   frameRate(30);  // フレームレート
   noCursor();     // マウスカーソル非表示
 
   // 入力設定
-  //Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
-  Input.setInputInterface(new KeyboardInput()); // キーボード
+  Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
+  //Input.setInputInterface(new KeyboardInput()); // キーボード
 
   // コイン投入検知
-  //GPIO.pinMode(PHOTO, GPIO.INPUT);
-  //GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
+  GPIO.pinMode(PHOTO, GPIO.INPUT);
+  GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
 
   // 実行コマンド
   exec_commands[0] = "processing-java --sketch=" + dataPath("games/Main/") + " --run";
@@ -89,7 +89,7 @@ void setup() {
 }
 
 void draw() {
-  println(frameRate);
+  //println(frameRate);
 
   // デバッグ用
   if (keyPressed && key == ' ' && scene == Scene.Insert) {
