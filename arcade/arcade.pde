@@ -5,7 +5,7 @@ import ddf.minim.*;
 // 画面遷移
 enum Scene {
   Insert, // コイン投入
-  Zoom, // ズームイン
+  Zoom,   // ズームイン
   Select  // ゲーム選択
 }
 
@@ -26,7 +26,8 @@ AudioPlayer coinSE; // コイン投入音
 AudioPlayer zoomSE; // ズーム音
 
 // ゲーム選択画面
-String[] exec_path = new String[3];     // 実行ファイルパス
+String[] exec_commands = new String[3]; // 実行コマンド
+String[] exec_dirs = new String[3];     // 実行時作業フォルダ
 Runtime runtime = Runtime.getRuntime(); // 実行するやつ
 
 int select = -1;                   // 選択しているゲーム
@@ -61,10 +62,15 @@ void setup() {
   //GPIO.pinMode(PHOTO, GPIO.INPUT);
   //GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
 
-  // 実行ファイルパス
-  exec_path[0] = dataPath("games/pacman-armv6hf/pacman_game");
-  exec_path[1] = dataPath("games/pacman-armv6hf/pacman_game");
-  exec_path[2] = dataPath("games/unagi-armv6hf/UNAGI");
+  // 実行コマンド
+  exec_commands[0] = "processing-java --sketch=" + dataPath("games/Main/") + " --run";
+  exec_commands[1] = "bash" + dataPath("games/pacman-armv6hf/pacman_game");
+  exec_commands[2] = "bash" + dataPath("games/unagi-armv6hf/UNAGI");
+
+  // 実行時作業フォルダ
+  exec_dirs[0] = dataPath("games/pacman-armv6hf/");
+  exec_dirs[1] = dataPath("games/pacman-armv6hf/");
+  exec_dirs[2] = dataPath("games/unagi-armv6hf/");
 
   // 画像
   coinBack = loadImage("coin/back.png");
@@ -202,8 +208,8 @@ void draw() {
     // ゲーム実行
     if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
       try {
-        File file = new File(exec_path[select]);
-        runtime.exec(exec_path[select], null, new File(file.getParent()));
+        File file = new File(exec_dirs[select]);
+        runtime.exec(exec_commands[select], null, file);
       } catch (IOException ex) {
         ex.printStackTrace();
       }
