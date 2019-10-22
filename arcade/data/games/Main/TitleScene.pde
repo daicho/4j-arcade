@@ -70,6 +70,20 @@ class TitleScene extends Scene {
       }
     }
 
+    switch (select) {
+      case ENTER_GAME:
+        if (Input_title.buttonAPress()) {
+          finishFlag = true;
+          sound.endingBgm();
+        }
+        break;
+      case HOW_TO_PLAY:
+        if (Input_title.buttonAPress()) view.pushSwitch();
+        if (Input_title.rightPress()) view.goFrontPage();
+        else if (Input_title.leftPress()) view.goBackPage();
+        break;
+    }
+
     imageMode(CENTER);
     image(back, width/2,height/2);
 

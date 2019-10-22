@@ -1,4 +1,4 @@
-// プレイヤー (パックマン) //<>//
+// プレイヤー (パックマン)
 public class Pacman extends Character {
   protected boolean kakusei = false;          // 覚醒しているか
   protected boolean kakuseiLimit = false;     // 覚醒が終わりそうか
