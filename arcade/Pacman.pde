@@ -110,6 +110,9 @@ public class Pacman implements Demo {
     background(200, 240, 255);
     map.draw();
 
+    pushMatrix();
+    translate(0, 176);
+
     // アイテム
     for (PacmanItem food : foods)
       food.draw();
@@ -121,30 +124,32 @@ public class Pacman implements Demo {
       monster.draw();
     pacman.draw();
 
+    popMatrix();
+
     // スコア表示
     textAlign(RIGHT, BASELINE);
 
     textFont(font, 24);
     fill(0, 0, 159);
-    text("SCORE", 100, 175);
-    text("HIGH SCORE", 465, 175);
+    text("SCORE", 100, 138);
+    text("HIGH SCORE", 465, 138);
 
     textFont(font, 24);
     fill(0, 0, 0);
-    text(6300, 100, 197);
-    text(23500, 465, 197);
+    text(6300, 100, 160);
+    text(23500, 465, 160);
 
     // 残基表示
     imageMode(CENTER);
     for (int i = 0; i < 2; i++)
-      image(pacman.animations[3].images[0], i * 32 + 31, 738);
+      image(pacman.animations[3].images[0], i * 32 + 31, 701);
 
     // 枠表示
     rectMode(CENTER);
     stroke(27, 20, 100);
     strokeWeight(4);
     noFill();
-    rect(width / 2, 455, 478, 630, 10);
+    rect(width / 2, 418, 478, 630, 10);
   }
   
   // リセット

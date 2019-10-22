@@ -187,7 +187,7 @@ void draw() {
     }
 
     if (zoom) {
-      amt += amt / 24 + 0.001;
+      amt += amt / 20 + 0.001;
       if (amt > 1) {
         amt = 0;
         zoom = false;
