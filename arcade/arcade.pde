@@ -40,7 +40,6 @@ Timer movieTimer = new Timer(300); // 映像用タイマー
 boolean reset = false;             // リセットするか
 Timer resetTimer = new Timer(150); // リセット用タイマー
 
-PImage selectAll;  // セレクト画面
 PImage selectBack; // 背景
 PImage frame;      // フレーム
 PImage tetris;     // テトリスの文字
@@ -71,7 +70,6 @@ void setup() {
   coinBack = loadImage("coin/back.png");
   coinStr = loadImage("coin/str.png");
 
-  selectAll = loadImage("select/select.png");
   selectBack = loadImage("select/back.png");
   frame = loadImage("select/frame.png");
   tetris = loadImage("select/tetris.png");
@@ -96,46 +94,8 @@ void draw() {
     scene = Scene.Zoom;
   }
 
-  switch (scene) {
-  case Insert:
-    // コイン投入画面
-    image(coinBack, width / 2, height / 2);
-    image(coinStr, width / 2, 518);
-    fill(0, 0, 0);
-    stroke(0, 0, 0);
-    slot(width / 2, 424, 17, 147);
-
-    break;
-
-  case Zoom:
-    // ズームイン
-    PImage slotBack = coinBack.copy();
-    slotBack.mask(slotMask(width / 2, 424, lerp(17, 600, amt), lerp(147, 3000, amt)));
-
-    image(selectAll, width / 2, height / 2);
-    image(slotBack, width / 2, height / 2);
-    fill(0, 0, 0, lerp(255, 0, amt));
-    stroke(0, 0, 0);
-    slot(width / 2, 424, lerp(17, 650, amt), lerp(147, 3000, amt));
-
-    if (zoomTimer.update()) {
-      zoomSE.play();
-      zoom = true;
-    }
-
-    if (zoom) {
-      amt += amt / 24 + 0.001;
-      if (amt > 1) {
-        amt = 0;
-        zoom = false;
-        zoomTimer.reset();
-        scene = Scene.Select;
-      }
-    }
-
-    break;
-
-  case Select:
+  // ゲーム選択画面描画
+  if (scene == Scene.Zoom || scene == Scene.Select) {
     // ゲーム選択画面
     if (playMovie) {
       rectMode(CORNER);
@@ -185,7 +145,45 @@ void draw() {
     image(pacman, width / 2, 454);
     image(unagi, width / 2, 706);
     image(frame, width / 2, height / 2);
+  }
 
+  switch (scene) {
+  case Insert:
+    // コイン投入画面
+    background(0, 169, 157);
+    image(coinStr, width / 2, 518);
+    fill(0, 0, 0);
+    stroke(0, 0, 0);
+    slot(width / 2, height / 2, 17, 147);
+
+    break;
+
+  case Zoom:
+    // ズームイン
+    fill(0, 169, 157);
+    slotMask(width / 2, height / 2, lerp(17, 650, amt), lerp(147, 3000, amt));
+    fill(0, 0, 0, lerp(255, 0, amt));
+    stroke(0, 0, 0);
+    slot(width / 2, height / 2, lerp(17, 650, amt), lerp(147, 3000, amt));
+
+    if (zoomTimer.update()) {
+      zoomSE.play();
+      zoom = true;
+    }
+
+    if (zoom) {
+      amt += amt / 24 + 0.001;
+      if (amt > 1) {
+        amt = 0;
+        zoom = false;
+        zoomTimer.reset();
+        scene = Scene.Select;
+      }
+    }
+
+    break;
+
+  case Select:
     // ゲーム実行
     if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
       try {
@@ -283,22 +281,40 @@ void oval(float x, float y, float w, float h) {
 
 // コイン投入口を描画
 void slot(float x, float y, float w, float h) {
+  float sw = (w + h) * 0.035;
+
   rectMode(CENTER);
-  strokeWeight((w + h) * 0.035);
-  rect(x, y, w, h, (w + h) * 0.03);
+  strokeWeight(sw);
+  
+  if (h - sw <= height)
+    rect(x, y, w, h);
+  else
+    rect(x, y, w, height + sw);
 }
 
-// マスク用コイン投入口を作成
-int[] slotMask(float x, float y, float w, float h) {
-  PGraphics graphics = createGraphics(width, height);
-  graphics.beginDraw();
+// 穴あきコイン投入口を描画
+void slotMask(float x, float y, float w, float h) {
+  rectMode(CENTER);
+  noStroke();
 
-  graphics.rectMode(CENTER);
-  graphics.noStroke();
-  graphics.fill(0);
-  graphics.background(255);
-  graphics.rect(x, y, w, h, (w + h) * 0.03);
+  beginShape();
+    vertex(0, 0);
+    vertex(width, 0);
+    vertex(width, height);
+    vertex(0, height);
 
-  graphics.endDraw();
-  return graphics.pixels;
+    beginContour();
+      if (h <= height) {
+        vertex(x - w / 2, y - h / 2);
+        vertex(x - w / 2, y + h / 2);
+        vertex(x + w / 2, y + h / 2);
+        vertex(x + w / 2, y - h / 2);
+      } else {
+        vertex(x - w / 2, 0);
+        vertex(x - w / 2, height);
+        vertex(x + w / 2, height);
+        vertex(x + w / 2, 0);
+      }
+    endContour();
+  endShape(CLOSE);
 }
