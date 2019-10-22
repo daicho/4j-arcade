@@ -85,13 +85,28 @@ void setup() {
 void draw() {
   println(frameRate);
 
-  imageMode(CENTER);
-  rectMode(CENTER);
-
   // デバッグ用
   if (keyPressed && key == ' ' && scene == Scene.Insert) {
     coinSE.play();
     scene = Scene.Zoom;
+  }
+
+  imageMode(CENTER);
+  rectMode(CENTER);
+
+  // リセット
+  if (reset) {
+    if (resetTimer.update()) {
+      reset = false;
+      scene = Scene.Insert;
+      select = -1;
+      selectChange = false;
+      playMovie = false;
+      coinSE.rewind();
+      zoomSE.rewind();
+    }
+
+    return;
   }
 
   // ゲーム選択画面描画
@@ -195,19 +210,7 @@ void draw() {
 
       reset = true;
       resetTimer.reset();
-    }
-
-    // リセット
-    if (reset) {
-      if (resetTimer.update()) {
-        reset = false;
-        scene = Scene.Insert;
-        select = -1;
-        selectChange = false;
-        playMovie = false;
-      }
-
-      return;
+      break;
     }
 
     // ゲーム選択

@@ -455,15 +455,18 @@ class SOBack extends UNAGISceneObject {
 
 class SOImage extends UNAGISceneObject {
   private final String imagename;
+  private PImage image;
   
   SOImage(int x, int y, String imagename) {
     super(x, y);
     this.imagename = imagename;
+    
+    image = loadImage(imagename);
   }
 
   @Override
   public void RENDER_INIT() {
-    image(loadImage(imagename), 0, 0);
+    image(image, 0, 0);
   }
 
   @Override
@@ -816,6 +819,8 @@ class SOStage extends UNAGISceneObject {
   private int demo_food_idx;
   private int demo_hook_idx;
   
+  private PImage image;
+  
   SOStage(int x, int y, int w, int h, SOUnagi unagi) {
     super(x, y);
     
@@ -852,11 +857,13 @@ class SOStage extends UNAGISceneObject {
     
     step_sfeed = STEP_SFEED_APPEAR;
     step_hook  = STEP_HOOK_APPEAR;
+    
+    image = loadImage("UNAGI/init/SOStage.png");
   }
   
   @Override
   public void RENDER_INIT() {
-    image(loadImage("UNAGI/init/SOStage.png"), 0, 0);
+    image(image, 0, 0);
     unagi.RENDER_INIT();
     sprite(PIC_FEED, feed);
     
@@ -1048,6 +1055,7 @@ enum StageObject {
 class SOStock extends UNAGISceneObject {
   private final SOUnagi[] stocks;
   private final UNAGIInput[]   stockinputs;
+  private PImage image;
 
   SOStock(int x, int y, int stock) {
     super(x, y);
@@ -1110,11 +1118,13 @@ class SOStock extends UNAGISceneObject {
         );
       }
     }
+    
+    image = loadImage("UNAGI/init/SOStock.png");
   }
 
   @Override
   public void RENDER_INIT() {
-    image(loadImage("UNAGI/init/SOStock.png"), 0, 0);
+    image(image, 0, 0);
     for (SOUnagi stock : stocks) {
       stock.render_init();
     }
