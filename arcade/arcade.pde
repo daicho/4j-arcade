@@ -64,13 +64,13 @@ void setup() {
 
   // 実行コマンド
   exec_commands[0] = "processing-java --sketch=" + dataPath("games/Main/") + " --run";
-  exec_commands[1] = "bash " + dataPath("games/pacman-armv6hf/pacman_game");
-  exec_commands[2] = "bash " + dataPath("games/unagi-armv6hf/UNAGI");
+  exec_commands[1] = "processing-java --sketch=" + dataPath("games/pacman_game/") + " --run";
+  exec_commands[2] = "processing-java --sketch=" + dataPath("games/UNAGI/") + " --run";
 
   // 実行時作業フォルダ
   exec_dirs[0] = dataPath("games/Main/");
-  exec_dirs[1] = dataPath("games/pacman-armv6hf/");
-  exec_dirs[2] = dataPath("games/unagi-armv6hf/");
+  exec_dirs[1] = dataPath("games/pacman_game/");
+  exec_dirs[2] = dataPath("games/UNAGI/");
 
   // 画像
   coinBack = loadImage("coin/back.png");
