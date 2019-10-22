@@ -39,7 +39,7 @@ boolean playMovie = false;         // 再生中か
 Timer movieTimer = new Timer(300); // 映像用タイマー
 
 boolean reset = false;             // リセットするか
-Timer resetTimer = new Timer(150); // リセット用タイマー
+Timer resetTimer = new Timer(900); // リセット用タイマー
 
 PImage selectBack; // 背景
 PImage frame;      // フレーム

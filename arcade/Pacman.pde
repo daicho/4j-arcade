@@ -126,19 +126,6 @@ public class Pacman implements Demo {
 
     popMatrix();
 
-    // スコア表示
-    textAlign(RIGHT, BASELINE);
-
-    textFont(font, 24);
-    fill(0, 0, 159);
-    text("SCORE", 100, 138);
-    text("HIGH SCORE", 465, 138);
-
-    textFont(font, 24);
-    fill(0, 0, 0);
-    text(6300, 100, 160);
-    text(23500, 465, 160);
-
     // 残基表示
     imageMode(CENTER);
     for (int i = 0; i < 2; i++)
