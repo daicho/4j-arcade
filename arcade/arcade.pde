@@ -5,7 +5,7 @@ import ddf.minim.*;
 // 画面遷移
 enum Scene {
   Insert, // コイン投入
-  Zoom,   // ズームイン
+  Zoom, // ズームイン
   Select  // ゲーム選択
 }
 
@@ -33,13 +33,14 @@ int select = -1;                   // 選択しているゲーム
 boolean selectChange = false;      // 選択を切り替えたか
 Timer selectTimer = new Timer(30); // 選択してからのタイマー
 
-Demo[] movies = new Demo[3];       // 映像
+Demo movie;                        // 映像
 boolean playMovie = false;         // 再生中か
 Timer movieTimer = new Timer(300); // 映像用タイマー
 
 boolean reset = false;             // リセットするか
 Timer resetTimer = new Timer(150); // リセット用タイマー
 
+PImage selectAll;  // セレクト画面
 PImage selectBack; // 背景
 PImage frame;      // フレーム
 PImage tetris;     // テトリスの文字
@@ -63,24 +64,20 @@ void setup() {
 
   // 実行ファイルパス
   exec_path[0] = dataPath("games/pacman-armv6hf/pacman_game");
-  exec_path[1] = dataPath("games/pacman_x64/pacman_game.exe");
+  exec_path[1] = dataPath("games/pacman-armv6hf/pacman_game");
   exec_path[2] = dataPath("games/unagi-armv6hf/UNAGI");
-
-  // デモ
-  movies[0] = new Tetris();
-  movies[1] = new Pacman();
-  movies[2] = new UNAGI();
 
   // 画像
   coinBack = loadImage("coin/back.png");
   coinStr = loadImage("coin/str.png");
 
+  selectAll = loadImage("select/select.png");
   selectBack = loadImage("select/back.png");
   frame = loadImage("select/frame.png");
   tetris = loadImage("select/tetris.png");
   pacman = loadImage("select/pacman.png");
   unagi = loadImage("select/unagi.png");
-  
+
   // 音声
   minim = new Minim(this);
   coinSE = minim.loadFile("coin/coin.mp3");
@@ -88,6 +85,8 @@ void setup() {
 }
 
 void draw() {
+  println(frameRate);
+
   imageMode(CENTER);
   rectMode(CENTER);
 
@@ -97,20 +96,52 @@ void draw() {
     scene = Scene.Zoom;
   }
 
-  if (scene == Scene.Insert) {
+  switch (scene) {
+  case Insert:
     // コイン投入画面
     image(coinBack, width / 2, height / 2);
     image(coinStr, width / 2, 518);
     fill(0, 0, 0);
     stroke(0, 0, 0);
     slot(width / 2, 424, 17, 147);
-  } else {
+
+    break;
+
+  case Zoom:
+    // ズームイン
+    PImage slotBack = coinBack.copy();
+    slotBack.mask(slotMask(width / 2, 424, lerp(17, 600, amt), lerp(147, 3000, amt)));
+
+    image(selectAll, width / 2, height / 2);
+    image(slotBack, width / 2, height / 2);
+    fill(0, 0, 0, lerp(255, 0, amt));
+    stroke(0, 0, 0);
+    slot(width / 2, 424, lerp(17, 650, amt), lerp(147, 3000, amt));
+
+    if (zoomTimer.update()) {
+      zoomSE.play();
+      zoom = true;
+    }
+
+    if (zoom) {
+      amt += amt / 24 + 0.001;
+      if (amt > 1) {
+        amt = 0;
+        zoom = false;
+        zoomTimer.reset();
+        scene = Scene.Select;
+      }
+    }
+
+    break;
+
+  case Select:
     // ゲーム選択画面
     if (playMovie) {
       rectMode(CORNER);
       ellipseMode(CENTER);
       imageMode(CORNER);
-      movies[select].draw();
+      movie.draw();
 
       imageMode(CENTER);
       rectMode(CENTER);
@@ -122,8 +153,6 @@ void draw() {
     } else {
       image(selectBack, width / 2, height / 2);
     }
-
-    image(frame, width / 2, height / 2); // フレーム
 
     // テトリス
     if (select == 0)
@@ -157,95 +186,79 @@ void draw() {
     image(unagi, width / 2, 706);
     image(frame, width / 2, height / 2);
 
-    // ズームイン
-    if (scene == Scene.Zoom) {
-      PImage slotBack = coinBack.copy();
-      slotBack.mask(slotMask(width / 2, 424, lerp(17, 600, amt), lerp(147, 3000, amt)));
-      image(slotBack, width / 2, height / 2);
-      fill(0, 0, 0, lerp(255, 0, amt));
-      stroke(0, 0, 0);
-      slot(width / 2, 424, lerp(17, 650, amt), lerp(147, 3000, amt));
-
-      if (zoomTimer.update()) {
-        zoomSE.play();
-        zoom = true;
+    // ゲーム実行
+    if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
+      try {
+        File file = new File(exec_path[select]);
+        runtime.exec(exec_path[select], null, new File(file.getParent()));
+      } catch (IOException ex) {
+        ex.printStackTrace();
       }
 
-      if (zoom) {
-        amt += amt / 24 + 0.001;
-        if (amt > 1) {
-          amt = 0;
-          zoom = false;
-          zoomTimer.reset();
-          scene = Scene.Select;
+      reset = true;
+      resetTimer.reset();
+    }
+
+    // リセット
+    if (reset) {
+      if (resetTimer.update()) {
+        reset = false;
+        scene = Scene.Insert;
+        select = -1;
+        selectChange = false;
+        playMovie = false;
+      }
+
+      return;
+    }
+
+    // ゲーム選択
+    if (Input.upPress()) {
+      selectChange = true;
+      playMovie = false;
+      selectTimer.reset();
+
+      if (select == -1)
+        select = 2;
+      else
+        select = (select + 2) % 3;
+    }
+
+    if (Input.downPress()) {
+      selectChange = true;
+      playMovie = false;
+      selectTimer.reset();
+
+      if (select == -1)
+        select = 0;
+      else
+        select = (select + 4) % 3;
+    }
+
+    // 動画再生
+    if (selectChange) {
+      if (selectTimer.update()) {
+        switch (select) {
+        case 0:
+          movie = new Tetris();
+          break;
+          
+        case 1:
+          movie = new Pacman();
+          break;
+          
+        case 2:
+          movie = new UNAGI();
+          break;
         }
+
+        movieTimer.reset();
+        selectChange = false;
+        playMovie = true;
       }
     }
 
-    // 入力受付
-    if (scene == Scene.Select) {
-      // ゲーム実行
-      if ((Input.buttonAPress() || Input.buttonBPress() || Input.buttonCPress()) && !reset && select != -1) {
-        try {
-          File file = new File(exec_path[select]);
-          runtime.exec(exec_path[select], null, new File(file.getParent()));
-        } 
-        catch (IOException ex) {
-          ex.printStackTrace();
-        }
-
-        reset = true;
-        resetTimer.reset();
-      }
-
-      // リセット
-      if (reset) {
-        if (resetTimer.update()) {
-          reset = false;
-          scene = Scene.Insert;
-          select = -1;
-          selectChange = false;
-          playMovie = false;
-        }
-
-        return;
-      }
-
-      // ゲーム選択
-      if (Input.upPress()) {
-        selectChange = true;
-        playMovie = false;
-        selectTimer.reset();
-
-        if (select == -1)
-          select = 2;
-        else
-          select = (select + 2) % 3;
-      }
-
-      if (Input.downPress()) {
-        selectChange = true;
-        playMovie = false;
-        selectTimer.reset();
-
-        if (select == -1)
-          select = 0;
-        else
-          select = (select + 4) % 3;
-      }
-
-      // 動画再生
-      if (selectChange) {
-        if (selectTimer.update()) {
-          for (Demo movie : movies)
-            movie.reset();
-
-          movieTimer.reset();
-          selectChange = false;
-          playMovie = true;
-        }
-      }
-    }
+    break;
   }
 }
 

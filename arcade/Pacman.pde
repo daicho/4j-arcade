@@ -155,13 +155,13 @@ public class Pacman implements Demo {
       monster.reset();
 
     // アイテム
-    foodPositions = new ArrayList<PVector>();
-    powerFoodPositions = new ArrayList<PVector>();
+    foods = new ArrayList<PacmanItem>();
+    powerFoods = new ArrayList<PacmanItem>();
 
     for (PVector foodPosition : foodPositions)
       foods.add(new PacmanItem(foodPosition, "food"));
     for (PVector powerFoodPosition : powerFoodPositions)
-      foods.add(new PacmanItem(powerFoodPosition, "power_food"));
+      powerFoods.add(new PacmanItem(powerFoodPosition, "power_food"));
   }
 }
 

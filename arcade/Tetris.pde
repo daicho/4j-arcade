@@ -12,6 +12,10 @@ class Tetris implements Demo {
   int pre_time;
   int delta_time;  // 前フレームからの経過時間を持つ 
 
+  public Tetris() {
+    reset();
+  }
+
   public void reset() {
     strokeWeight(1); 
     setupFonts();
