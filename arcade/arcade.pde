@@ -62,9 +62,9 @@ void setup() {
   //GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
 
   // 実行ファイルパス
-  exec_path[0] = dataPath("games/pacman_x64/pacman_game.exe");
+  exec_path[0] = dataPath("games/pacman-armv6hf/pacman_game");
   exec_path[1] = dataPath("games/pacman_x64/pacman_game.exe");
-  exec_path[2] = dataPath("games/pacman_x64/pacman_game.exe");
+  exec_path[2] = dataPath("games/unagi-armv6hf/UNAGI");
 
   // デモ
   movies[0] = new Tetris();

@@ -1,0 +1,16 @@
+food_score,10
+power_food_score,50
+special_item_score,500
+special_item_name,kakomon
+pacman_direction,2
+pacman_speed,3.4
+monster_wait_speed,2
+monster_release_speed,2
+monster_return_speed,8
+monster_rest_speed,3
+monster_chase_speed,3
+monster_ijike_speed,2
+rest_time,225
+chase_time,225
+ijike_time,240
+release_interval,150
