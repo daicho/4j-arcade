@@ -29,6 +29,11 @@ class SName extends Scene {
       HOWTO_TEXTSIZE, 0, HOWTO_COLOR,
       HOWTO
     );
+    final SOMessage howto_complete = new SOMessage(
+      HOWTO_X, HOWTO_Y,
+      HOWTO_TEXTSIZE, 0, HOWTO_COMPLETE_COLOR,
+      HOWTO_COMPLETE
+    );
     final SOCursor cursor = new SOCursor(
       KEYBOARD_X, KEYBOARD_Y,
       0, 0,
@@ -37,25 +42,35 @@ class SName extends Scene {
     this.name = new SOName(NAME_X, NAME_Y);
     final SOKeyboard keyboard = new SOKeyboard(KEYBOARD_X, KEYBOARD_Y, cursor, name);
     
-    addObjects(back, message, howto, cursor, keyboard, name);
+    addObjects(back, message, howto, howto_complete, cursor, keyboard, name);
   }
   
   @Override
   public Scene next() {
-    if (name.complete() != null && name.complete().length() > 0) {
+    if (name.complete() != null) {
       name.close();
-      return new SRanking(name.complete(), score, unagi, null);
+      return new SRanking(
+        name.complete().length() > 0 ? name.complete() : DEFAULTNAME,
+        score,
+        unagi,
+        null
+      );
     }
     
     return this;
   }
   
-  private static final String HOWTO = "ひだり-けす なか-おわる みぎ-にゅうりょく";
+  private static final String DEFAULTNAME = "ななしのせいさんしゃ";
+  
+  private static final String HOWTO = "ひだり-けす 　　 　　　 みぎ-にゅうりょく";
   private static final int HOWTO_TEXTSIZE = 20;
   private static final int HOWTO_W = HOWTO_TEXTSIZE * 18 + HOWTO_TEXTSIZE / 2 * 5;
   private static final int HOWTO_X = (__WIDTH__ - HOWTO_W) / 2;
   private static final int HOWTO_Y = 10;
-  private static final int HOWTO_COLOR = #ffff00;
+  private static final int HOWTO_COLOR = #ff0000;
+  
+  private static final String HOWTO_COMPLETE = "　　　 　　 なか-おわる";
+  private static final int HOWTO_COMPLETE_COLOR = #00ffff;
   
   private static final String MESSAGE = "あなたのなまえ";
   private static final int MESSAGE_TEXTSIZE = 30;

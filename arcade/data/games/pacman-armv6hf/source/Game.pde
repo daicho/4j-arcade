@@ -11,6 +11,7 @@ public class Game implements Scene {
   protected String[] stageNames = {"1", "2", "3"}; // ステージ名
   protected int stageNum = 0; // 現在のステージ番号
   protected Stage stage;      // 現在のステージ
+  protected Map map;          // マップオブジェクト
 
   protected PImage lifeImage = loadImage("images/player-3-0.png"); // 残基の画像
   protected SoundEffect se = new SoundEffect(minim); // SE
@@ -23,7 +24,8 @@ public class Game implements Scene {
   };
 
   public Game() {
-    this.stage = new Stage(stageNames[stageNum]);
+    this.map = new Map();
+    this.stage = new Stage(stageNames[stageNum], map);
   }
 
   public void update() {
@@ -38,7 +40,7 @@ public class Game implements Scene {
       } else {
         stageNum++;
         this.prevScore = this.score;
-        this.stage = new Stage(stageNames[stageNum]);
+        this.stage = new Stage(stageNames[stageNum], map);
         this.se = new SoundEffect(minim);
       }
 

@@ -15,7 +15,7 @@ void setup() {
   fullScreen();
   noCursor();
   // size(480, 848);
-  frameRate(15);
+  frameRate(12);
   noStroke();
   textFont(createFont("PixelMplus10-Regular.ttf", 20, false));
   
@@ -23,6 +23,7 @@ void setup() {
   
   sc = new SceneController(
     new IGPIO(),
+    // new IKey(),
     new STitle()
     // new SHowto()
     // new SGame(0, 2, new LinkedList<SOUnagi>())

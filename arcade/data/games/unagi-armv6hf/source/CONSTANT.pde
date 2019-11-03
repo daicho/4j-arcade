@@ -8,4 +8,4 @@
 private static final int __WIDTH__  = 480;
 private static final int __HEIGHT__ = 848;
 
-private static final int __FRAMERATE__ = 15;
+private static final int __FRAMERATE__ = 12;

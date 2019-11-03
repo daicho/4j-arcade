@@ -14,8 +14,8 @@ class GameScene extends Scene {
     this.sound = sound;
     stage = new Stage(sound);
     disp = new Display(stage);
-    input = new InputKey();
-    // input = new InputButton(); // アーケードとキーボード両方のインプット
+    //input = new InputKey();
+    input = new InputButton(); // アーケードとキーボード両方のインプット
     pre_time = 0;
     sound.playBGM(1);
   }   

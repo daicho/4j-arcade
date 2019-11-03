@@ -26,14 +26,8 @@ class STitle extends Scene {
     if (choice.chosen() != -1) {
       choice.close();
       switch (choice.chosen()) {
-        case SOChoice.HOWTO:
-          return new SHowto();
         case SOChoice.PLAY:
-          return new SGame(
-            SGAME_TIME,
-            SGAME_STOCK,
-            new LinkedList<SOUnagi>()
-          );
+          return new SHowto();
         case SOChoice.RANKING:
           return new SRanking(null, -1, null, new STitle());
         case SOChoice.STAFF:
@@ -51,9 +45,6 @@ class STitle extends Scene {
   
   private static final int CHOICE_XC = __WIDTH__ / 2;
   private static final int CHOICE_YT = __HEIGHT__ / 2;
-  
-  private static final int SGAME_TIME  = 300;
-  private static final int SGAME_STOCK = 2;
   
   private static final String COPYRIGHT = "Copyright (c) NNCT-J2016-UNAGI-TEAM 2019.\nAll rights reserved.";
   private static final int COPYRIGHT_TEXTSIZE = 20;
@@ -83,7 +74,6 @@ class SOChoice extends SceneObject {
     
     textSize(TEXTSIZE);
     textAlign(CENTER, TOP);
-    text("あそびかた", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * HOWTO);
     text("プレイ",   TEXT_XC, (TEXTSIZE + TEXT_SPACE) * PLAY);
     text("ランキング", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * RANKING);
     text("スタッフ", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * STAFF);
@@ -142,12 +132,11 @@ class SOChoice extends SceneObject {
     sound.close();
   }
   
-  public static final int HOWTO   = 0;
-  public static final int PLAY    = 1;
-  public static final int RANKING = 2;
-  public static final int STAFF   = 3;
+  public static final int PLAY    = 0;
+  public static final int RANKING = 1;
+  public static final int STAFF   = 2;
   
-  private static final int CHOICE_LIMIT = 3;
+  private static final int CHOICE_LIMIT = 2;
   
   private static final int TEXTSIZE = 30;
   private static final int TEXT_W   = TEXTSIZE * 5;

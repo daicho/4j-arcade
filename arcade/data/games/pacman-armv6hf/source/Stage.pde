@@ -60,8 +60,8 @@ public class Stage implements Scene {
   protected StartBGM startbgm; // スタート時のBGM
   protected NomalBGM nomalbgm = new NomalBGM(minim); // ゲーム中のBGM
 
-  public Stage(String mapName) {
-    this.map = new Map(mapName);
+  public Stage(String mapName, Map map) {
+    this.map = map;
 
     // 設定ファイル読み込み
     Setting setting = new Setting("stages/" + mapName + "-setting.txt");
@@ -86,50 +86,21 @@ public class Stage implements Scene {
     monsterSpeeds.put(MonsterSpeed.Chase, setting.getFloat("monster_chase_speed"));
     monsterSpeeds.put(MonsterSpeed.Ijike, setting.getFloat("monster_ijike_speed"));
 
-    // マップファイル読み込み
-    ArrayList<PVector> monsterPositions = new ArrayList<PVector>();
-    PImage mapImage = loadImage("stages/" + mapName + "-map.png");
-    mapImage.loadPixels();
+    this.pacman = new Pacman(map.pacmanPosition, setting.getInt("pacman_direction"), setting.getFloat("pacman_speed"));
 
-    for (int y = 0; y < mapImage.height; y++) {
-      for (int x = 0; x < mapImage.width; x++) {
-        color pixel = mapImage.pixels[y * mapImage.width + x];
+    this.monsters.add(new Guzuta(map.monsterPositions.get(3), 1, monsterSpeeds));
+    this.monsters.add(new Aosuke(map.monsterPositions.get(1), 1, monsterSpeeds));
+    this.monsters.add(new Pinky(map.monsterPositions.get(0), 3, monsterSpeeds));
+    this.monsters.add(new Akabei(map.monsterPositions.get(2), 1, monsterSpeeds));
 
-        // パックマン
-        if (pixel == color(255, 0, 0)) {
-          int pacmanDirection = setting.getInt("pacman_direction");
-          float pacmanSpeed = setting.getFloat("pacman_speed");
-          this.pacman = new Pacman(new PVector(x, y), pacmanDirection, pacmanSpeed);
-        }
+    for (PVector foodPosition : map.foodPositions)
+      this.foods.add(new Item(foodPosition, "food"));
 
-        // 敵
-        else if (pixel == color(0, 0, 255)) {
-          monsterPositions.add(new PVector(x, y));
-        }
+    for (PVector powerFoodPosition : map.powerFoodPositions)
+      this.powerFoods.add(new Item(powerFoodPosition, "power_food"));
 
-        // エサ
-        else if (pixel == color(255, 255, 0)) {
-          foods.add(new Item(new PVector(x, y), "food"));
-        }
+    this.specialItem = new Item(map.specialItemPosition, setting.getString("special_item_name"));
 
-        // パワーエサ
-        else if (pixel == color(0, 255, 255)) {
-          powerFoods.add(new Item(new PVector(x, y), "power_food"));
-        }
-
-        // スペシャルアイテム
-        else if (pixel == color(127, 0, 255)) {
-          specialItem = new Item(new PVector(x, y), setting.getString("special_item_name"));
-        }
-      }
-    }
-
-    this.monsters.add(new Akabei(monsterPositions.get(0), 2, monsterSpeeds));
-    this.monsters.add(new Pinky(monsterPositions.get(2), 3, monsterSpeeds));
-    this.monsters.add(new Aosuke(monsterPositions.get(1), 1, monsterSpeeds));
-    this.monsters.add(new Guzuta(monsterPositions.get(3), 1, monsterSpeeds));
-    this.monsters.get(0).setStatus(MonsterStatus.Active);
-    
     this.startbgm = new StartBGM(minim, mapName); 
   }
 
@@ -169,8 +140,10 @@ public class Stage implements Scene {
 
     case Play:
       // モンスター放出
-      if (frame < releaseInterval * (monsters.size() - 1) && frame % releaseInterval == 0)
-        this.monsters.get(frame / releaseInterval + 1).setStatus(MonsterStatus.Release);
+      if (releaseInterval <= frame && frame < releaseInterval * (monsters.size() + 1)) {
+        if (frame % releaseInterval == 0)
+          this.monsters.get(4 - frame / releaseInterval).setStatus(MonsterStatus.Release);
+      }
 
       // モード切り替え
       if (modeTimer.update()) {
@@ -403,7 +376,6 @@ public class Stage implements Scene {
 
       for (Monster monster : monsters)
         monster.reset();
-      this.monsters.get(0).setStatus(MonsterStatus.Active);
 
       for (Item food : foods)
         food.reset();

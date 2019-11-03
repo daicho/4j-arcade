@@ -41,7 +41,7 @@ public void setup() {
   
   noCursor();
   // size(480, 848);
-  frameRate(15);
+  frameRate(12);
   noStroke();
   textFont(createFont("PixelMplus10-Regular.ttf", 20, false));
   
@@ -49,6 +49,7 @@ public void setup() {
   
   sc = new SceneController(
     new IGPIO(),
+    // new IKey(),
     new STitle()
     // new SHowto()
     // new SGame(0, 2, new LinkedList<SOUnagi>())
@@ -80,7 +81,7 @@ public AudioPlayer __load__(String s) {
 private static final int __WIDTH__  = 480;
 private static final int __HEIGHT__ = 848;
 
-private static final int __FRAMERATE__ = 15;
+private static final int __FRAMERATE__ = 12;
 /*
   ====================================================
   File name: Input.pde
@@ -672,9 +673,15 @@ class SOUnagi extends SceneObject implements Iterable<UnagiUnit> {
             PIC_BODY[DONTCARE][from][to] = loadImage("sprite/unagi/body-x-" + from + "-" + to + ".png");
           }
           
-          PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
-          
-          
+          if (i == ANIMATION) {
+            if (from != to) {
+              continue;
+            }
+            PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
+          }
+          else {
+            PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
+          }
         }
       }
     }
@@ -1202,6 +1209,8 @@ class SHowto extends Scene {
     final SOImage pic_net   = new SOImage(PIC_X, NET_Y,   "sprite/net.png");
     final SOImage pic_hook  = new SOImage(PIC_X, HOOK_Y,  "sprite/hook.png");
     
+    final SOMessage message = new SOMessage(MESSAGE_X, MESSAGE_Y, MESSAGE_TEXTSIZE, 0, 255, MESSAGE);
+    
     addObjects(
       new SOBack(0),
       title,
@@ -1216,6 +1225,7 @@ class SHowto extends Scene {
       pic_sfeed,
       pic_net,
       pic_hook,
+      message,
       pressed
     );
   }
@@ -1223,11 +1233,18 @@ class SHowto extends Scene {
   @Override
   public Scene next() {
     if (pressed.pressed()) {
-      return new STitle();
+      return new SGame(
+        SGAME_TIME,
+        SGAME_STOCK,
+        new LinkedList<SOUnagi>()
+      );
     }
     
     return this;
   }
+  
+  private static final int SGAME_TIME  = 300;
+  private static final int SGAME_STOCK = 2;
   
   private static final String TITLE = "あそびかた";
   private static final int TITLE_TEXTSIZE = 30;
@@ -1236,10 +1253,12 @@ class SHowto extends Scene {
   private static final int TITLE_W = TITLE_TEXTSIZE * 5;
   private static final int TITLE_H = TITLE_TEXTSIZE;
   private static final int TITLE_X = (__WIDTH__ - TITLE_W) / 2;;
-  private static final int TITLE_Y = 100;
+  private static final int TITLE_Y = 70;
   
   private final String[] HOWTO = {
     "ウナギをようしょくしよう！",
+    "ウナギはとまらず、すすみつづける。",
+    "ウナギはうしろにすすめない。",
     "えさをたべると、ながくなったり、",
     "おいしくなったりする。",
     "じぶんのからだや、あみ・つりばりに",
@@ -1254,7 +1273,7 @@ class SHowto extends Scene {
   private static final int HOWTO_SPACE = 5;
   private static final int HOWTO_COLOR = 255;
   private static final int HOWTO_W = HOWTO_TEXTSIZE * 17;
-  private static final int HOWTO_H = (HOWTO_TEXTSIZE + HOWTO_SPACE) * 10 - HOWTO_SPACE;
+  private static final int HOWTO_H = (HOWTO_TEXTSIZE + HOWTO_SPACE) * 12 - HOWTO_SPACE;
   private static final int HOWTO_X = (__WIDTH__ - HOWTO_W) / 2;
   private static final int HOWTO_Y = TITLE_Y + TITLE_H + 20;
   
@@ -1287,6 +1306,12 @@ class SHowto extends Scene {
   private static final int SFEED_Y = ITEM_Y + (ITEM_TEXTSIZE + ITEM_SPACE) * 1 + 2;
   private static final int NET_Y   = ITEM_Y + (ITEM_TEXTSIZE + ITEM_SPACE) * 2 + 2;
   private static final int HOOK_Y  = ITEM_Y + (ITEM_TEXTSIZE + ITEM_SPACE) * 3 + 2;
+  
+  private static final String MESSAGE = "ボタンをおしてはじめる";
+  private static final int MESSAGE_TEXTSIZE = 20;
+  private static final int MESSAGE_W = MESSAGE_TEXTSIZE * 11;
+  private static final int MESSAGE_X = (__WIDTH__ - MESSAGE_W) / 2;
+  private static final int MESSAGE_Y = 800;
 }
 /*
   ====================================================
@@ -1319,6 +1344,11 @@ class SName extends Scene {
       HOWTO_TEXTSIZE, 0, HOWTO_COLOR,
       HOWTO
     );
+    final SOMessage howto_complete = new SOMessage(
+      HOWTO_X, HOWTO_Y,
+      HOWTO_TEXTSIZE, 0, HOWTO_COMPLETE_COLOR,
+      HOWTO_COMPLETE
+    );
     final SOCursor cursor = new SOCursor(
       KEYBOARD_X, KEYBOARD_Y,
       0, 0,
@@ -1327,25 +1357,35 @@ class SName extends Scene {
     this.name = new SOName(NAME_X, NAME_Y);
     final SOKeyboard keyboard = new SOKeyboard(KEYBOARD_X, KEYBOARD_Y, cursor, name);
     
-    addObjects(back, message, howto, cursor, keyboard, name);
+    addObjects(back, message, howto, howto_complete, cursor, keyboard, name);
   }
   
   @Override
   public Scene next() {
-    if (name.complete() != null && name.complete().length() > 0) {
+    if (name.complete() != null) {
       name.close();
-      return new SRanking(name.complete(), score, unagi, null);
+      return new SRanking(
+        name.complete().length() > 0 ? name.complete() : DEFAULTNAME,
+        score,
+        unagi,
+        null
+      );
     }
     
     return this;
   }
   
-  private static final String HOWTO = "ひだり-けす なか-おわる みぎ-にゅうりょく";
+  private static final String DEFAULTNAME = "ななしのせいさんしゃ";
+  
+  private static final String HOWTO = "ひだり-けす 　　 　　　 みぎ-にゅうりょく";
   private static final int HOWTO_TEXTSIZE = 20;
   private static final int HOWTO_W = HOWTO_TEXTSIZE * 18 + HOWTO_TEXTSIZE / 2 * 5;
   private static final int HOWTO_X = (__WIDTH__ - HOWTO_W) / 2;
   private static final int HOWTO_Y = 10;
-  private static final int HOWTO_COLOR = 0xffffff00;
+  private static final int HOWTO_COLOR = 0xffff0000;
+  
+  private static final String HOWTO_COMPLETE = "　　　 　　 なか-おわる";
+  private static final int HOWTO_COMPLETE_COLOR = 0xff00ffff;
   
   private static final String MESSAGE = "あなたのなまえ";
   private static final int MESSAGE_TEXTSIZE = 30;
@@ -2124,7 +2164,6 @@ class SResult extends Scene {
   private static final int QUALITY_Y = SIZE_Y + 80;
   private static final int SCORE_Y   = QUALITY_Y + 80;
   
-  
   private static final String MESSAGE = "ボタンをおしてつぎへ";
   private static final int MESSAGE_TEXTSIZE = 20;
   private static final int MESSAGE_W = MESSAGE_TEXTSIZE * 10;
@@ -2334,6 +2373,13 @@ class SOSound extends SceneObject {
     register_sound.close();
   }
 }
+/*
+  ====================================================
+  File name: SStaff.pde
+  Copyright (c) Haga Nanami 2019. All rights reserved.
+  ====================================================
+*/
+
 class SStaff extends Scene {
   private final SOPressed pressed;
   
@@ -2346,7 +2392,16 @@ class SStaff extends Scene {
       STAFF
     );
     
-    addObjects(new SOBack(0), staff, pressed);
+    final SOMessage message = new SOMessage(
+      MESSAGE_X,
+      MESSAGE_Y,
+      MESSAGE_TEXTSIZE,
+      0,
+      255,
+      MESSAGE
+    );
+    
+    addObjects(new SOBack(0), staff, message, pressed);
   }
   
   @Override
@@ -2372,9 +2427,13 @@ class SStaff extends Scene {
   private static final int STAFF_W = STAFF_TEXTSIZE / 2 * 21;
   private static final int STAFF_X = (__WIDTH__ - STAFF_W) / 2;
   private static final int STAFF_Y = 50;
+  
+  private static final String MESSAGE = "ボタンをおしてもどる";
+  private static final int MESSAGE_TEXTSIZE = 20;
+  private static final int MESSAGE_W = MESSAGE_TEXTSIZE * 10;
+  private static final int MESSAGE_X = (__WIDTH__ - MESSAGE_W) / 2;
+  private static final int MESSAGE_Y = 800;
 }
-
-// 1 [2] 2 [1] 2 [1] 3 
 /*
   ====================================================
   File name: STitle.pde
@@ -2403,14 +2462,8 @@ class STitle extends Scene {
     if (choice.chosen() != -1) {
       choice.close();
       switch (choice.chosen()) {
-        case SOChoice.HOWTO:
-          return new SHowto();
         case SOChoice.PLAY:
-          return new SGame(
-            SGAME_TIME,
-            SGAME_STOCK,
-            new LinkedList<SOUnagi>()
-          );
+          return new SHowto();
         case SOChoice.RANKING:
           return new SRanking(null, -1, null, new STitle());
         case SOChoice.STAFF:
@@ -2428,9 +2481,6 @@ class STitle extends Scene {
   
   private static final int CHOICE_XC = __WIDTH__ / 2;
   private static final int CHOICE_YT = __HEIGHT__ / 2;
-  
-  private static final int SGAME_TIME  = 300;
-  private static final int SGAME_STOCK = 2;
   
   private static final String COPYRIGHT = "Copyright (c) NNCT-J2016-UNAGI-TEAM 2019.\nAll rights reserved.";
   private static final int COPYRIGHT_TEXTSIZE = 20;
@@ -2460,7 +2510,6 @@ class SOChoice extends SceneObject {
     
     textSize(TEXTSIZE);
     textAlign(CENTER, TOP);
-    text("あそびかた", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * HOWTO);
     text("プレイ",   TEXT_XC, (TEXTSIZE + TEXT_SPACE) * PLAY);
     text("ランキング", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * RANKING);
     text("スタッフ", TEXT_XC, (TEXTSIZE + TEXT_SPACE) * STAFF);
@@ -2519,12 +2568,11 @@ class SOChoice extends SceneObject {
     sound.close();
   }
   
-  public static final int HOWTO   = 0;
-  public static final int PLAY    = 1;
-  public static final int RANKING = 2;
-  public static final int STAFF   = 3;
+  public static final int PLAY    = 0;
+  public static final int RANKING = 1;
+  public static final int STAFF   = 2;
   
-  private static final int CHOICE_LIMIT = 3;
+  private static final int CHOICE_LIMIT = 2;
   
   private static final int TEXTSIZE = 30;
   private static final int TEXT_W   = TEXTSIZE * 5;
@@ -2707,6 +2755,7 @@ class SOSize extends SceneObject {
   SOSize(int x, int y, SOUnagi unagi) {
     super(x, y);
     this.unagi = unagi;
+    size = unagi.size();
   }
 
   @Override

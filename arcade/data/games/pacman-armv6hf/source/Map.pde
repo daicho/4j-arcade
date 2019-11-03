@@ -12,22 +12,29 @@ public class Map {
   protected int[][] returnRoute;   // 敵の帰路
   protected PVector releasePoint;  // 出撃地点
   protected PVector returnPoint;   // 帰還地点
+  
+  protected PVector pacmanPosition;
+  ArrayList<PVector> monsterPositions = new ArrayList<PVector>();
+  ArrayList<PVector> foodPositions = new ArrayList<PVector>();
+  ArrayList<PVector> powerFoodPositions = new ArrayList<PVector>();
+  protected PVector specialItemPosition;
+  
   protected Animation image;       // マップの画像
   protected PVector size;          // 画像サイズ
 
-  public Map(String mapName) {
+  public Map() {
     // 画像ファイル読み込み
-    this.image = new Animation("stages/" + mapName + "-image");
+    this.image = new Animation("stages/image");
     this.size = image.getSize();
     this.objects = new MapObject[round(size.x)][round(size.y)];
     this.returnRoute = new int[round(size.x)][round(size.y)];
 
     // マップファイル読み込み
-    PImage mapImage = loadImage("stages/" + mapName + "-map.png");
+    PImage mapImage = loadImage("stages/map.png");
     mapImage.loadPixels();
 
     // 帰路ファイル読み込み
-    PImage returnImage = loadImage("stages/" + mapName + "-return.png");
+    PImage returnImage = loadImage("stages/return.png");
     returnImage.loadPixels();
 
     for (int y = 0; y < mapImage.height; y++) {
@@ -46,6 +53,16 @@ public class Map {
 
         if (mapPixel == color(255, 0, 255))
           releasePoint = new PVector(x, y); // 出撃地点
+        if (mapPixel == color(255, 0, 0))
+          pacmanPosition = new PVector(x, y); // パックマン
+        else if (mapPixel == color(0, 0, 255))
+          monsterPositions.add(new PVector(x, y)); // 敵
+        else if (mapPixel == color(255, 255, 0))
+          foodPositions.add(new PVector(x, y)); // エサ
+        else if (mapPixel == color(0, 255, 255))
+          powerFoodPositions.add(new PVector(x, y)); // パワーエサ
+        else if (mapPixel == color(127, 0, 255))
+          specialItemPosition = new PVector(x, y); // スペシャルアイテム
 
         if (returnPixel == color(0, 0, 0))
           returnRoute[x][y] = 0; // 右

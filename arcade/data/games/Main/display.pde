@@ -236,7 +236,7 @@ class Display {
       //println("ALL CLEAR" + (millis() - allClear_disp_start_time)); 
       textSize(25);
       fill(255);
-      if (!(len >= 0 && len <= 1))  text("Len", 310, 250);
+      if (!(len >= 0 && len <= 1))  text("Ren", 310, 250);
       if (!(len >= 0 && len <= 1))  text(len - 1, 310, 280);
     }
 

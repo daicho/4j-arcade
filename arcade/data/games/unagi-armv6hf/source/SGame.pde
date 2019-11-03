@@ -405,9 +405,15 @@ class SOUnagi extends SceneObject implements Iterable<UnagiUnit> {
             PIC_BODY[DONTCARE][from][to] = loadImage("sprite/unagi/body-x-" + from + "-" + to + ".png");
           }
           
-          PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
-          
-          
+          if (i == ANIMATION) {
+            if (from != to) {
+              continue;
+            }
+            PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
+          }
+          else {
+            PIC_TAIL[i][from][to] = loadImage("sprite/unagi/tail-" + i + "-" + from + "-" + to + ".png");
+          }
         }
       }
     }

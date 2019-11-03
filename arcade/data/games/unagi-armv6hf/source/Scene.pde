@@ -170,6 +170,7 @@ class SOSize extends SceneObject {
   SOSize(int x, int y, SOUnagi unagi) {
     super(x, y);
     this.unagi = unagi;
+    size = unagi.size();
   }
 
   @Override

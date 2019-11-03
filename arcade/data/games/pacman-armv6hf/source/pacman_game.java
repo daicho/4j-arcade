@@ -559,6 +559,7 @@ public class Game implements Scene {
   protected String[] stageNames = {"1", "2", "3"}; // ステージ名
   protected int stageNum = 0; // 現在のステージ番号
   protected Stage stage;      // 現在のステージ
+  protected Map map;          // マップオブジェクト
 
   protected PImage lifeImage = loadImage("images/player-3-0.png"); // 残基の画像
   protected SoundEffect se = new SoundEffect(minim); // SE
@@ -571,7 +572,8 @@ public class Game implements Scene {
   };
 
   public Game() {
-    this.stage = new Stage(stageNames[stageNum]);
+    this.map = new Map();
+    this.stage = new Stage(stageNames[stageNum], map);
   }
 
   public void update() {
@@ -586,7 +588,7 @@ public class Game implements Scene {
       } else {
         stageNum++;
         this.prevScore = this.score;
-        this.stage = new Stage(stageNames[stageNum]);
+        this.stage = new Stage(stageNames[stageNum], map);
         this.se = new SoundEffect(minim);
       }
 
@@ -1124,22 +1126,29 @@ public class Map {
   protected int[][] returnRoute;   // 敵の帰路
   protected PVector releasePoint;  // 出撃地点
   protected PVector returnPoint;   // 帰還地点
+  
+  protected PVector pacmanPosition;
+  ArrayList<PVector> monsterPositions = new ArrayList<PVector>();
+  ArrayList<PVector> foodPositions = new ArrayList<PVector>();
+  ArrayList<PVector> powerFoodPositions = new ArrayList<PVector>();
+  protected PVector specialItemPosition;
+  
   protected Animation image;       // マップの画像
   protected PVector size;          // 画像サイズ
 
-  public Map(String mapName) {
+  public Map() {
     // 画像ファイル読み込み
-    this.image = new Animation("stages/" + mapName + "-image");
+    this.image = new Animation("stages/image");
     this.size = image.getSize();
     this.objects = new MapObject[round(size.x)][round(size.y)];
     this.returnRoute = new int[round(size.x)][round(size.y)];
 
     // マップファイル読み込み
-    PImage mapImage = loadImage("stages/" + mapName + "-map.png");
+    PImage mapImage = loadImage("stages/map.png");
     mapImage.loadPixels();
 
     // 帰路ファイル読み込み
-    PImage returnImage = loadImage("stages/" + mapName + "-return.png");
+    PImage returnImage = loadImage("stages/return.png");
     returnImage.loadPixels();
 
     for (int y = 0; y < mapImage.height; y++) {
@@ -1158,6 +1167,16 @@ public class Map {
 
         if (mapPixel == color(255, 0, 255))
           releasePoint = new PVector(x, y); // 出撃地点
+        if (mapPixel == color(255, 0, 0))
+          pacmanPosition = new PVector(x, y); // パックマン
+        else if (mapPixel == color(0, 0, 255))
+          monsterPositions.add(new PVector(x, y)); // 敵
+        else if (mapPixel == color(255, 255, 0))
+          foodPositions.add(new PVector(x, y)); // エサ
+        else if (mapPixel == color(0, 255, 255))
+          powerFoodPositions.add(new PVector(x, y)); // パワーエサ
+        else if (mapPixel == color(127, 0, 255))
+          specialItemPosition = new PVector(x, y); // スペシャルアイテム
 
         if (returnPixel == color(0, 0, 0))
           returnRoute[x][y] = 0; // 右
@@ -1564,8 +1583,9 @@ public class Result implements Scene {
   protected boolean clear; // クリアしたか
   protected int ranking;   // ランキング
   protected boolean light = true; // 点灯中か
-  protected Timer lightTimer = new Timer(30); // タイマー
-  protected Timer exitTimer = new Timer(300); // 終了タイマー
+  protected Timer lightTimer = new Timer(30);   // タイマー
+  protected Timer buttonTimer = new Timer(90, false); // 操作受付タイマー
+  protected Timer exitTimer = new Timer(300);   // 終了タイマー
 
   // キャラクター
   protected FreeCharacter[] characters = {
@@ -1593,6 +1613,9 @@ public class Result implements Scene {
 
     for (FreeCharacter character : characters)
       character.update();
+
+    if (buttonTimer.update() && Input.anyButtonPress())
+      exit();
 
     if (exitTimer.update())
       exit();
@@ -2090,8 +2113,8 @@ public class Stage implements Scene {
   protected StartBGM startbgm; // スタート時のBGM
   protected NomalBGM nomalbgm = new NomalBGM(minim); // ゲーム中のBGM
 
-  public Stage(String mapName) {
-    this.map = new Map(mapName);
+  public Stage(String mapName, Map map) {
+    this.map = map;
 
     // 設定ファイル読み込み
     Setting setting = new Setting("stages/" + mapName + "-setting.txt");
@@ -2116,50 +2139,21 @@ public class Stage implements Scene {
     monsterSpeeds.put(MonsterSpeed.Chase, setting.getFloat("monster_chase_speed"));
     monsterSpeeds.put(MonsterSpeed.Ijike, setting.getFloat("monster_ijike_speed"));
 
-    // マップファイル読み込み
-    ArrayList<PVector> monsterPositions = new ArrayList<PVector>();
-    PImage mapImage = loadImage("stages/" + mapName + "-map.png");
-    mapImage.loadPixels();
+    this.pacman = new Pacman(map.pacmanPosition, setting.getInt("pacman_direction"), setting.getFloat("pacman_speed"));
 
-    for (int y = 0; y < mapImage.height; y++) {
-      for (int x = 0; x < mapImage.width; x++) {
-        int pixel = mapImage.pixels[y * mapImage.width + x];
+    this.monsters.add(new Guzuta(map.monsterPositions.get(3), 1, monsterSpeeds));
+    this.monsters.add(new Aosuke(map.monsterPositions.get(1), 1, monsterSpeeds));
+    this.monsters.add(new Pinky(map.monsterPositions.get(0), 3, monsterSpeeds));
+    this.monsters.add(new Akabei(map.monsterPositions.get(2), 1, monsterSpeeds));
 
-        // パックマン
-        if (pixel == color(255, 0, 0)) {
-          int pacmanDirection = setting.getInt("pacman_direction");
-          float pacmanSpeed = setting.getFloat("pacman_speed");
-          this.pacman = new Pacman(new PVector(x, y), pacmanDirection, pacmanSpeed);
-        }
+    for (PVector foodPosition : map.foodPositions)
+      this.foods.add(new Item(foodPosition, "food"));
 
-        // 敵
-        else if (pixel == color(0, 0, 255)) {
-          monsterPositions.add(new PVector(x, y));
-        }
+    for (PVector powerFoodPosition : map.powerFoodPositions)
+      this.powerFoods.add(new Item(powerFoodPosition, "power_food"));
 
-        // エサ
-        else if (pixel == color(255, 255, 0)) {
-          foods.add(new Item(new PVector(x, y), "food"));
-        }
+    this.specialItem = new Item(map.specialItemPosition, setting.getString("special_item_name"));
 
-        // パワーエサ
-        else if (pixel == color(0, 255, 255)) {
-          powerFoods.add(new Item(new PVector(x, y), "power_food"));
-        }
-
-        // スペシャルアイテム
-        else if (pixel == color(127, 0, 255)) {
-          specialItem = new Item(new PVector(x, y), setting.getString("special_item_name"));
-        }
-      }
-    }
-
-    this.monsters.add(new Akabei(monsterPositions.get(0), 2, monsterSpeeds));
-    this.monsters.add(new Pinky(monsterPositions.get(2), 3, monsterSpeeds));
-    this.monsters.add(new Aosuke(monsterPositions.get(1), 1, monsterSpeeds));
-    this.monsters.add(new Guzuta(monsterPositions.get(3), 1, monsterSpeeds));
-    this.monsters.get(0).setStatus(MonsterStatus.Active);
-    
     this.startbgm = new StartBGM(minim, mapName); 
   }
 
@@ -2199,8 +2193,10 @@ public class Stage implements Scene {
 
     case Play:
       // モンスター放出
-      if (frame < releaseInterval * (monsters.size() - 1) && frame % releaseInterval == 0)
-        this.monsters.get(frame / releaseInterval + 1).setStatus(MonsterStatus.Release);
+      if (releaseInterval <= frame && frame < releaseInterval * (monsters.size() + 1)) {
+        if (frame % releaseInterval == 0)
+          this.monsters.get(4 - frame / releaseInterval).setStatus(MonsterStatus.Release);
+      }
 
       // モード切り替え
       if (modeTimer.update()) {
@@ -2433,7 +2429,6 @@ public class Stage implements Scene {
 
       for (Monster monster : monsters)
         monster.reset();
-      this.monsters.get(0).setStatus(MonsterStatus.Active);
 
       for (Item food : foods)
         food.reset();

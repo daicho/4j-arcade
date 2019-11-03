@@ -108,7 +108,6 @@ class SResult extends Scene {
   private static final int QUALITY_Y = SIZE_Y + 80;
   private static final int SCORE_Y   = QUALITY_Y + 80;
   
-  
   private static final String MESSAGE = "ボタンをおしてつぎへ";
   private static final int MESSAGE_TEXTSIZE = 20;
   private static final int MESSAGE_W = MESSAGE_TEXTSIZE * 10;
