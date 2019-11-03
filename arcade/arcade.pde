@@ -10,20 +10,20 @@ enum Scene {
 }
 
 Scene scene = Scene.Insert; // 現在のシーン
-Minim minim;
+//Minim minim;
 
 // コイン投入画面
 final int PHOTO = 25; // フォトインタラプタのピン番号
 
 boolean zoom = false; // ズームしているか
 float amt = 0;        // アニメーションの進行
-Timer zoomTimer = new Timer(90); // ズームするまでのタイマー
+Timer zoomTimer = new Timer(30); // ズームするまでのタイマー
 
 PImage coinBack; // 背景
 PImage coinStr;  // INSERT COINの文字
 
-AudioPlayer coinSE; // コイン投入音
-AudioPlayer zoomSE; // ズーム音
+//AudioPlayer coinSE; // コイン投入音
+//AudioPlayer zoomSE; // ズーム音
 
 // ゲーム選択画面
 String[] exec_commands = new String[3]; // 実行コマンド
@@ -49,23 +49,23 @@ PImage unagi;      // ウナギの文字
 
 void setup() {
   // 画面設定
-  //fullScreen(); // フルスクリーン
-  size(480, 848); // ウィンドウ
+  fullScreen(); // フルスクリーン
+  //size(480, 848); // ウィンドウ
   frameRate(30);  // フレームレート
   noCursor();     // マウスカーソル非表示
 
   // 入力設定
-  //Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
-  Input.setInputInterface(new KeyboardInput()); // キーボード
+  Input.setInputInterface(new MixInput());    // キーボード・アーケード同時対応
+  //Input.setInputInterface(new KeyboardInput()); // キーボード
 
   // コイン投入検知
-  //GPIO.pinMode(PHOTO, GPIO.INPUT);
-  //GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
+  GPIO.pinMode(PHOTO, GPIO.INPUT);
+  GPIO.attachInterrupt(PHOTO, this, "throwCoin", GPIO.RISING);
 
   // 実行コマンド
   exec_commands[0] = "processing-java --sketch=" + dataPath("games/Main/") + " --run";
-  exec_commands[1] = "bash" + dataPath("games/pacman-armv6hf/pacman_game");
-  exec_commands[2] = "bash" + dataPath("games/unagi-armv6hf/UNAGI");
+  exec_commands[1] = "bash " + dataPath("games/pacman-armv6hf/pacman_game");
+  exec_commands[2] = "bash " + dataPath("games/unagi-armv6hf/UNAGI");
 
   // 実行時作業フォルダ
   exec_dirs[0] = dataPath("games/Main/");
@@ -83,9 +83,9 @@ void setup() {
   unagi = loadImage("select/unagi.png");
 
   // 音声
-  minim = new Minim(this);
-  coinSE = minim.loadFile("coin/coin.mp3");
-  zoomSE = minim.loadFile("coin/zoom.mp3");
+  //minim = new Minim(this);
+  //coinSE = minim.loadFile("coin/coin.mp3");
+  //zoomSE = minim.loadFile("coin/zoom.mp3");
 }
 
 void draw() {
@@ -93,7 +93,7 @@ void draw() {
 
   // デバッグ用
   if (keyPressed && key == ' ' && scene == Scene.Insert) {
-    coinSE.play();
+    //coinSE.play();
     scene = Scene.Zoom;
   }
 
@@ -108,8 +108,8 @@ void draw() {
       select = -1;
       selectChange = false;
       playMovie = false;
-      coinSE.rewind();
-      zoomSE.rewind();
+      //coinSE.rewind();
+      //zoomSE.rewind();
     }
 
     return;
@@ -188,7 +188,7 @@ void draw() {
     slot(width / 2, height / 2, lerp(17, 650, amt), lerp(147, 3000, amt));
 
     if (zoomTimer.update()) {
-      zoomSE.play();
+      //zoomSE.play();
       zoom = true;
     }
 
@@ -272,7 +272,7 @@ void draw() {
 // コイン投入
 void throwCoin(int pin) {
   if (scene == Scene.Insert) {
-    coinSE.play();
+    //coinSE.play();
     scene = Scene.Zoom;
   }
 }

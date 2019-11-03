@@ -20,7 +20,7 @@ public class Pacman implements Demo {
     
     for (int i = 0; i < postionsCsv.getRowCount(); i++) {
       if ("p".equals(postionsCsv.getString(i, 0)))
-        this.pacman = new PacmanPlayer(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)), 4, 4);
+        this.pacman = new PacmanPlayer(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)), 3, 4);
 
       if ("m".equals(postionsCsv.getString(i, 0)))
         monsterPositions.add(new PVector(postionsCsv.getInt(i, 1), postionsCsv.getInt(i, 2)));
@@ -33,10 +33,10 @@ public class Pacman implements Demo {
     }
 
     // 敵
-    this.monsters.add(new PacmanAkabei(monsterPositions.get(1), 1, 3));
-    this.monsters.add(new PacmanPinky(monsterPositions.get(0), 1, 3));
-    this.monsters.add(new PacmanAosuke(monsterPositions.get(3), 3, 3));
-    this.monsters.add(new PacmanGuzuta(monsterPositions.get(2), 3, 3));
+    this.monsters.add(new PacmanAkabei(monsterPositions.get(1), 1, 4));
+    this.monsters.add(new PacmanPinky(monsterPositions.get(0), 1, 4));
+    this.monsters.add(new PacmanAosuke(monsterPositions.get(3), 3, 4));
+    this.monsters.add(new PacmanGuzuta(monsterPositions.get(2), 3, 4));
 
     // アイテム
     for (PVector foodPosition : foodPositions)
